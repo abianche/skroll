@@ -5,7 +5,7 @@ This doc explains how to set up your environment, make changes, and submit pull 
 
 ## Code of Conduct
 Be respectful and constructive. By participating, you agree to uphold our community standards.  
-(If added, see `CODE_OF_CONDUCT.md`.)
+(see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md))
 
 ---
 
@@ -128,7 +128,6 @@ cargo test
 ---
 
 ## Release (early guidance)
-- Keep `CHANGELOG.md` updated (Added/Changed/Fixed).
 - Use tags like `v0.x.y` for pre-release versions.
 - Binary builds per-platform via CI (future task).
 
