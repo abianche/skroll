@@ -73,7 +73,7 @@ This should open a Tauri window with the scaffolded React app.
 Contributions are welcome!  
 - Open an issue for ideas, bugs, or feature requests.  
 - Fork and PR for code changes.  
-- See [CONTRIBUTING.md](docs/CONTRIBUTING.md) (to be added).  
+- See [CONTRIBUTING.md](CONTRIBUTING.md).  
 
 ---
 
