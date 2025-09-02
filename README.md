@@ -1,3 +1,5 @@
+![GitHub License](https://img.shields.io/github/license/abianche/skroll)
+
 # Skroll: Cross-Platform Narrative Editor
 
 **A modern cross-platform tool for writing and playing branching stories, built with Tauri, React, and Rust.**
