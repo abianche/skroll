@@ -61,7 +61,11 @@ This should open a Tauri window with the scaffolded React app.
 
 ---
 
-## 🗺 Roadmap (MVP → v1.0)
+## 🗺 Roadmap (MVP)
+### ⚠️ **UNDER INITIAL DEVELOPMENT**
+
+We are actively building the foundation of this project, and it is not yet ready for production use.
+
 - [ ] JSON story schema & sample stories  
 - [ ] Parser & runtime in Rust  
 - [ ] Minimal editor + live preview  
