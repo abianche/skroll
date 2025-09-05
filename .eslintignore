@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+coverage/
+target/
+src-tauri/
+public/
+crates/
+vite.config.ts
+

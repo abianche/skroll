@@ -1,16 +1,16 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { useState } from 'react';
+import reactLogo from './assets/react.svg';
+import { invoke } from '@tauri-apps/api/core';
+import './App.css';
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-  const [validationMsg, setValidationMsg] = useState<string>("");
+  const [greetMsg, setGreetMsg] = useState('');
+  const [name, setName] = useState('');
+  const [validationMsg, setValidationMsg] = useState<string>('');
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+    setGreetMsg(await invoke('greet', { name }));
   }
 
   async function validateSample() {
@@ -38,9 +38,11 @@ function App() {
       ]
     }`;
     try {
-      const result: unknown = await invoke("validate_story", { storyJson: sample });
+      const result: unknown = await invoke('validate_story', {
+        storyJson: sample,
+      });
       if (Array.isArray(result) && result.length === 0) {
-        setValidationMsg("No diagnostics — story is valid ✅");
+        setValidationMsg('No diagnostics — story is valid ✅');
       } else {
         setValidationMsg(JSON.stringify(result, null, 2));
       }
@@ -60,7 +62,9 @@ function App() {
       ]
     }`;
     try {
-      const result: unknown = await invoke("validate_story", { storyJson: broken });
+      const result: unknown = await invoke('validate_story', {
+        storyJson: broken,
+      });
       setValidationMsg(JSON.stringify(result, null, 2));
     } catch (e: any) {
       setValidationMsg(`Validation error: ${e?.toString?.() ?? e}`);
@@ -101,11 +105,15 @@ function App() {
       <p>{greetMsg}</p>
 
       <div className="row" style={{ marginTop: 16, gap: 8 }}>
-        <button type="button" onClick={validateSample}>Validate Sample Story</button>
-        <button type="button" onClick={validateBroken}>Validate Broken Story</button>
+        <button type="button" onClick={validateSample}>
+          Validate Sample Story
+        </button>
+        <button type="button" onClick={validateBroken}>
+          Validate Broken Story
+        </button>
       </div>
       {validationMsg && (
-        <pre style={{ textAlign: "left", whiteSpace: "pre-wrap" }}>{validationMsg}</pre>
+        <pre style={{ textAlign: 'left', whiteSpace: 'pre-wrap' }}>{validationMsg}</pre>
       )}
     </main>
   );
