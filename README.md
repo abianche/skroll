@@ -41,13 +41,7 @@ With this tool you can:
 
 ## 🚀 Getting Started
 ### Prerequisites
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable)  
-- [Node.js](https://nodejs.org/) (LTS recommended)  
-- [pnpm](https://pnpm.io/) or npm/yarn  
-- Platform toolchains:  
-  - **macOS/iOS** → Xcode  
-  - **Windows** → Visual Studio Build Tools  
-  - **Linux** → GCC/Clang + libgtk  
+- Follow Tauri [prerequisites](https://tauri.app/start/prerequisites)
 
 ### Clone & Run
 ```bash
