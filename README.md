@@ -43,10 +43,32 @@ With this tool you can:
 ### Prerequisites
 - Follow Tauri [prerequisites](https://tauri.app/start/prerequisites)
 
+### Tooling & Versions
+- Node.js: uses `.nvmrc` (Node 22 LTS). If you have `nvm`, run `nvm use` to match.
+- pnpm: use Corepack to manage pnpm version: `corepack enable && corepack prepare pnpm@latest --activate`.
+- Rust: repo pins `stable` via `rust-toolchain.toml`.
+
+Quick installs (pick what applies):
+- macOS/Linux Node (nvm):
+  - `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash`
+  - `nvm install` (reads `.nvmrc` and installs Node 22)
+- pnpm via Corepack (bundled with Node 16.10+):
+  - `corepack enable && corepack prepare pnpm@latest --activate`
+- Rust via rustup:
+  - `curl https://sh.rustup.rs -sSf | sh`
+  - `rustup default stable` (optional; the repo already pins stable)
+
+Editors:
+- The repo includes `.editorconfig` for consistent formatting.
+- VS Code: suggested extensions in `.vscode/extensions.json` (Rust Analyzer, Tauri).
+
 ### Clone & Run
 ```bash
-git clone https://github.com/yourname/narrative-editor.git
-cd narrative-editor
+git clone https://github.com/abianche/skroll.git
+cd skroll
+nvm use             # match Node version from .nvmrc
+corepack enable     # manage pnpm via Corepack
+corepack prepare pnpm@latest --activate
 pnpm install
 pnpm tauri dev
 ```
