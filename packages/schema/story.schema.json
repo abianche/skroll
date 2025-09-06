@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Skroll Story",
+  "description": "Schema for interactive stories used by the Skroll runtime.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "variables",
+    "start",
+    "nodes"
+  ],
+  "properties": {
+    "variables": {
+      "type": "object",
+      "description": "Initial story variables keyed by name.",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean"
+        ]
+      }
+    },
+    "start": {
+      "type": "string",
+      "description": "ID of the starting node."
+    },
+    "nodes": {
+      "type": "array",
+      "description": "All nodes that compose the story.",
+      "items": {
+        "$ref": "#/definitions/node"
+      }
+    }
+  },
+  "definitions": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "set": {
+          "type": "object",
+          "description": "Assign variables to specific values when entering the node.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        },
+        "inc": {
+          "type": "object",
+          "description": "Increment numeric variables when entering the node.",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/choice"
+          }
+        },
+        "end": {
+          "type": "boolean",
+          "description": "Marks the node as terminal."
+        }
+      }
+    },
+    "choice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "next"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "next": {
+          "type": "string"
+        },
+        "if": {
+          "type": "string",
+          "description": "Simple expression evaluated to determine if the choice is available."
+        }
+      }
+    }
+  }
+}
