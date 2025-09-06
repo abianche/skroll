@@ -7,6 +7,20 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
+  // Global ignore patterns (migrated from .eslintignore)
+  {
+    ignores: [
+      'node_modules/',
+      'dist/',
+      'build/',
+      'coverage/',
+      'target/',
+      'src-tauri/',
+      'public/',
+      'crates/',
+      'vite.config.ts',
+    ],
+  },
   // Base JS rules
   js.configs.recommended,
 
