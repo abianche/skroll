@@ -46,7 +46,7 @@ function App() {
       } else {
         setValidationMsg(JSON.stringify(result, null, 2));
       }
-    } catch (e: any) {
+    } catch (e) {
       setValidationMsg(`Validation error: ${e?.toString?.() ?? e}`);
     }
   }
@@ -66,7 +66,7 @@ function App() {
         storyJson: broken,
       });
       setValidationMsg(JSON.stringify(result, null, 2));
-    } catch (e: any) {
+    } catch (e) {
       setValidationMsg(`Validation error: ${e?.toString?.() ?? e}`);
     }
   }
