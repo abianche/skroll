@@ -1,0 +1,2 @@
+# Rust formatting configuration
+# Using default rustfmt settings; file presence enables consistent formatting.

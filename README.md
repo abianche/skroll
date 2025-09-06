@@ -98,6 +98,12 @@ Contributions are welcome!
 - Fork and PR for code changes.  
 - See [CONTRIBUTING.md](CONTRIBUTING.md).  
 
+### 🦀 Rust Formatting & Linting
+- Format check: `cargo fmt -- --check`
+- Lint (deny warnings): `cargo clippy -- -D warnings`
+
+Both commands should pass locally before opening a PR. See `CONTRIBUTING.md` for the full checklist.
+
 ---
 
 ## 📄 License

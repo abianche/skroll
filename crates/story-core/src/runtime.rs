@@ -39,7 +39,7 @@ impl StoryState {
         let node = self.current_node();
         node.choices
             .iter()
-            .filter(|c| c.cond.as_ref().map_or(true, |e| eval(&self.vars, e)))
+            .filter(|c| c.cond.as_ref().is_none_or(|e| eval(&self.vars, e)))
             .map(|c| ChoiceView {
                 text: c.text.clone(),
                 next: c.next.clone(),
@@ -52,7 +52,7 @@ impl StoryState {
         let avail: Vec<&StoryChoice> = node
             .choices
             .iter()
-            .filter(|c| c.cond.as_ref().map_or(true, |e| eval(&self.vars, e)))
+            .filter(|c| c.cond.as_ref().is_none_or(|e| eval(&self.vars, e)))
             .collect();
 
         if filtered_index >= avail.len() {
