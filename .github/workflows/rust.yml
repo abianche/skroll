@@ -30,7 +30,7 @@ jobs:
         run: cargo clippy -p story-core -- -D warnings
 
       - name: cargo test (story-core)
-        run: cargo test -p story-core --all-features --verbose
+        run: cargo test -p story-core --all-features
 
       - name: cargo doc (story-core)
         run: RUSTDOCFLAGS="-D warnings" cargo doc -p story-core --no-deps

@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 /// Convenience: parse Story from a JSON string.
 pub fn load_story_from_str(s: &str) -> Result<Story, StoryError> {
-    Story::from_json_str(s)
+    Story::from_json(s)
 }
 
 /// Validate a Story and return diagnostics (errors/warnings).
@@ -89,5 +89,65 @@ mod tests {
         let snap = state_to_json(&st).unwrap();
         let st2 = state_from_json(story.clone(), &snap).unwrap();
         assert!(st2.is_end());
+    }
+
+    #[test]
+    fn error_on_missing_start_node() {
+        let bad = r#"{
+          "variables": {},
+          "start": "missing",
+          "nodes": [{"id":"intro","text":"..."}]
+        }"#;
+        let err = load_story_from_str(bad).expect_err("should fail validation");
+        let msg = err.to_string();
+        assert!(msg.contains("start_not_found"));
+        assert!(msg.contains("/start"));
+    }
+
+    #[test]
+    fn error_on_unknown_next_target() {
+        let bad = r#"{
+          "variables": {},
+          "start": "intro",
+          "nodes": [
+            {"id":"intro","text":"","choices":[{"text":"go","next":"nope"}]}
+          ]
+        }"#;
+        let err = load_story_from_str(bad).expect_err("should fail validation");
+        let msg = err.to_string();
+        assert!(msg.contains("unknown_target"));
+        assert!(msg.contains("/nodes[0]/choices[0]/next"));
+    }
+
+    #[test]
+    fn error_on_duplicate_node_id() {
+        let bad = r#"{
+          "variables": {},
+          "start": "a",
+          "nodes": [
+            {"id":"a","text":""},
+            {"id":"a","text":"duplicate"}
+          ]
+        }"#;
+        let err = load_story_from_str(bad).expect_err("should fail validation");
+        let msg = err.to_string();
+        assert!(msg.contains("duplicate_node_id"));
+        assert!(msg.contains("/nodes[1].id") || msg.contains("/nodes[0].id"));
+    }
+
+    #[test]
+    fn warn_on_unknown_variable_in_if() {
+        let story = r#"{
+          "variables": {},
+          "start": "a",
+          "nodes": [
+            {"id":"a","text":"","choices":[{"text":"go","if":"foo == true","next":"a"}]}
+          ]
+        }"#;
+        let s = load_story_from_str(story).expect("warnings should not fail load");
+        let diags = validate(&s);
+        assert!(diags
+            .iter()
+            .any(|d| d.level == DiagnosticLevel::Warning && d.code == "unknown_variable"));
     }
 }
