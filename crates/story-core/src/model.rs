@@ -80,20 +80,38 @@ struct StoryFile {
 }
 
 use crate::error::StoryError;
+use crate::validate::validate_story;
+use crate::DiagnosticLevel;
 
 impl Story {
-    pub fn from_json_str(s: &str) -> Result<Self, StoryError> {
+    // Parse JSON into a Story and run validation.
+    pub fn from_json(s: &str) -> Result<Self, StoryError> {
         let file: StoryFile = serde_json::from_str(s)?;
         let mut map = HashMap::new();
         for n in &file.nodes {
             map.insert(n.id.clone(), n.clone());
         }
-        Ok(Story {
+        let story = Story {
             start: file.start,
             variables: file.variables,
             nodes: map,
             raw_nodes: file.nodes,
-        })
+        };
+
+        // Run validation and fail fast on first error-level diagnostic.
+        let diags = validate_story(&story);
+        if let Some(err) = diags
+            .into_iter()
+            .find(|d| d.level == DiagnosticLevel::Error)
+        {
+            return Err(StoryError::InvalidStory {
+                code: err.code,
+                message: err.message,
+                path: err.path,
+            });
+        }
+
+        Ok(story)
     }
 
     pub fn node(&self, id: &str) -> Option<&StoryNode> {
