@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import './App.css';
+import { Alert, Button, Flex, Group, Paper, Stack, Text, Textarea, Title } from '@mantine/core';
 
 type ChoiceView = { text: string; next: string };
 type NodeView = { id: string; text: string; end: boolean };
@@ -81,59 +81,58 @@ function App() {
   }, []);
 
   return (
-    <main
-      className="container"
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'stretch',
-        justifyContent: 'flex-start',
-        gap: 16,
-      }}
-    >
-      <section style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <h2>Editor</h2>
-        <textarea
+    <Flex gap="md" align="stretch" justify="flex-start" pt="10vh">
+      <Stack flex={1} gap="sm">
+        <Title order={2}>Editor</Title>
+        <Textarea
           value={editor}
-          onChange={(e) => setEditor(e.currentTarget.value)}
-          style={{ flex: 1, minHeight: 300, fontFamily: 'monospace' }}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setEditor(e.currentTarget.value)}
+          minRows={10}
+          autosize
+          styles={{ input: { fontFamily: 'monospace' } }}
         />
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={load}>Load Story</button>
-        </div>
-      </section>
+        <Group gap="sm">
+          <Button onClick={load}>Load Story</Button>
+        </Group>
+      </Stack>
 
-      <section style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <h2>Preview Player</h2>
-        {error && <div style={{ color: 'red' }}>Error: {error}</div>}
-        <div style={{ flex: 1, border: '1px solid #ccc', padding: 12, borderRadius: 6 }}>
+      <Stack flex={1} gap="sm">
+        <Title order={2}>Preview Player</Title>
+        {error && (
+          <Alert color="red" title="Error">
+            {error}
+          </Alert>
+        )}
+        <Paper flex={1} withBorder p="md" radius="md">
           {node ? (
-            <div>
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: '#999' }}>{node.id}</div>
-                <div style={{ fontSize: 16 }}>{node.text}</div>
-              </div>
+            <Stack>
+              <Stack gap={0} mb="md">
+                <Text size="xs" c="dimmed">
+                  {node.id}
+                </Text>
+                <Text size="sm">{node.text}</Text>
+              </Stack>
               {node.end ? (
-                <div style={{ fontWeight: 600 }}>The End</div>
+                <Text fw={600}>The End</Text>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Stack>
                   {choices.map((c, i) => (
-                    <button key={i} onClick={() => choose(i)}>
+                    <Button key={i} onClick={() => choose(i)}>
                       {c.text}
-                    </button>
+                    </Button>
                   ))}
-                </div>
+                </Stack>
               )}
-            </div>
+            </Stack>
           ) : (
-            <div>Load a story to begin.</div>
+            <Text>Load a story to begin.</Text>
           )}
-        </div>
-        <div>
-          <button onClick={reset}>Reset</button>
-        </div>
-      </section>
-    </main>
+        </Paper>
+        <Group>
+          <Button onClick={reset}>Reset</Button>
+        </Group>
+      </Stack>
+    </Flex>
   );
 }
 
