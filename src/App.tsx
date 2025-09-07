@@ -1,10 +1,14 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { Menu, Submenu, MenuItem } from '@tauri-apps/api/menu';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { Alert, Button, Flex, Group, Paper, Stack, Text, Textarea, Title } from '@mantine/core';
 
 type ChoiceView = { text: string; next: string };
 type NodeView = { id: string; text: string; end: boolean };
 type Diagnostic = Record<string, unknown>;
+
+const appWindow = getCurrentWindow();
 
 const SAMPLE = `{
   "variables": { "hasKey": false, "courage": 0 },
@@ -102,6 +106,36 @@ function App() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Create an application menu: Default platform items + Game > Reset
+  useEffect(() => {
+    (async () => {
+      try {
+        const reset = await MenuItem.new({
+          id: 'game.reset',
+          text: 'Reset',
+          action: async () => {
+            try {
+              await invoke('reset');
+              await refresh();
+            } catch (_) {}
+          },
+        });
+        const game = await Submenu.new({ id: 'game', text: 'Game', items: [reset] });
+        // Start from the platform default menu so you keep standard items.
+        const menu = await Menu.default();
+        await menu.append(game);
+        // App-wide (required on macOS). Safe on all platforms. Replaces current app menu.
+        await menu.setAsAppMenu();
+        // Window menu on Windows/Linux; macOS does not support per-window menus.
+        try {
+          await menu.setAsWindowMenu(appWindow);
+        } catch {}
+      } catch (e) {
+        // If menu APIs aren't available or fail, skip silently.
+      }
+    })();
   }, []);
 
   return (
