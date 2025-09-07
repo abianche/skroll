@@ -4,6 +4,7 @@ import { Alert, Button, Flex, Group, Paper, Stack, Text, Textarea, Title } from 
 
 type ChoiceView = { text: string; next: string };
 type NodeView = { id: string; text: string; end: boolean };
+type Diagnostic = Record<string, unknown>;
 
 const SAMPLE = `{
   "variables": { "hasKey": false, "courage": 0 },
@@ -34,6 +35,7 @@ function App() {
   const [node, setNode] = useState<NodeView | null>(null);
   const [choices, setChoices] = useState<ChoiceView[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
 
   async function refresh() {
     try {
@@ -49,9 +51,31 @@ function App() {
 
   async function load() {
     try {
+      // Run validation first to provide detailed diagnostics (non-blocking)
+      try {
+        const diags = await invoke<Diagnostic[]>('validate_story', { storyJson: editor });
+        setDiagnostics(diags);
+      } catch (ve) {
+        // Surface validation call failures in the generic error area
+        setDiagnostics([]);
+        setError(ve?.toString?.() ?? String(ve));
+        return;
+      }
+
       await invoke('load_story', { content: editor });
       await refresh();
     } catch (e) {
+      setError(e?.toString?.() ?? String(e));
+    }
+  }
+
+  async function validateOnly() {
+    setError(null);
+    try {
+      const diags = await invoke<Diagnostic[]>('validate_story', { storyJson: editor });
+      setDiagnostics(diags);
+    } catch (e) {
+      setDiagnostics([]);
       setError(e?.toString?.() ?? String(e));
     }
   }
@@ -93,7 +117,27 @@ function App() {
         />
         <Group gap="sm">
           <Button onClick={load}>Load Story</Button>
+          <Button variant="light" onClick={validateOnly}>
+            Validate
+          </Button>
         </Group>
+        {diagnostics.length > 0 && (
+          <Alert color="yellow" title={`Diagnostics (${diagnostics.length})`}>
+            <Stack gap={4}>
+              {diagnostics.map((d, i) => (
+                <Text key={i} size="sm" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+                  {(() => {
+                    try {
+                      return JSON.stringify(d, null, 2);
+                    } catch {
+                      return String(d);
+                    }
+                  })()}
+                </Text>
+              ))}
+            </Stack>
+          </Alert>
+        )}
       </Stack>
 
       <Stack flex={1} gap="sm">
