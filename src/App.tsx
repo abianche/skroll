@@ -37,8 +37,8 @@ function App() {
 
   async function refresh() {
     try {
-      const n = (await invoke('get_current_node')) as NodeView;
-      const ch = (await invoke('get_choices')) as ChoiceView[];
+      const n = await invoke<NodeView>('get_current_node');
+      const ch = await invoke<ChoiceView[]>('get_choices');
       setNode(n);
       setChoices(ch);
       setError(null);
@@ -81,7 +81,7 @@ function App() {
   }, []);
 
   return (
-    <Flex gap="md" align="stretch" justify="flex-start" pt="10vh">
+    <Flex gap="md" align="stretch" justify="flex-start" p="10vh">
       <Stack flex={1} gap="sm">
         <Title order={2}>Editor</Title>
         <Textarea
