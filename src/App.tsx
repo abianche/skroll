@@ -119,7 +119,9 @@ function App() {
             try {
               await invoke('reset');
               await refresh();
-            } catch (_) {}
+            } catch {
+              // noop
+            }
           },
         });
         const game = await Submenu.new({ id: 'game', text: 'Game', items: [reset] });
@@ -131,8 +133,10 @@ function App() {
         // Window menu on Windows/Linux; macOS does not support per-window menus.
         try {
           await menu.setAsWindowMenu(appWindow);
-        } catch {}
-      } catch (e) {
+        } catch {
+          // noop
+        }
+      } catch {
         // If menu APIs aren't available or fail, skip silently.
       }
     })();
