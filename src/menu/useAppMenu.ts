@@ -21,20 +21,51 @@ export function useAppMenu(autosave: boolean, handlers: Handlers) {
   useEffect(() => {
     (async () => {
       try {
-        const openItem = await MenuItem.new({ id: 'file.open', text: 'Open…', accelerator: 'CmdOrCtrl+O', action: handlers.onOpen });
-        const saveItem = await MenuItem.new({ id: 'file.save', text: 'Save', accelerator: 'CmdOrCtrl+S', action: handlers.onSave });
-        const saveAsItem = await MenuItem.new({ id: 'file.saveAs', text: 'Save As…', accelerator: 'Shift+CmdOrCtrl+S', action: handlers.onSaveAs });
-        const autosaveItem = await CheckMenuItem.new({ id: 'file.autosave', text: 'Autosave', checked: autosave, action: async () => {
-          const next = !(await autosaveItem.isChecked());
-          await autosaveItem.setChecked(next);
-          await handlers.onToggleAutosave(next);
-        }});
+        const openItem = await MenuItem.new({
+          id: 'file.open',
+          text: 'Open…',
+          accelerator: 'CmdOrCtrl+O',
+          action: handlers.onOpen,
+        });
+        const saveItem = await MenuItem.new({
+          id: 'file.save',
+          text: 'Save',
+          accelerator: 'CmdOrCtrl+S',
+          action: handlers.onSave,
+        });
+        const saveAsItem = await MenuItem.new({
+          id: 'file.saveAs',
+          text: 'Save As…',
+          accelerator: 'Shift+CmdOrCtrl+S',
+          action: handlers.onSaveAs,
+        });
+        const autosaveItem = await CheckMenuItem.new({
+          id: 'file.autosave',
+          text: 'Autosave',
+          checked: autosave,
+          action: async () => {
+            const next = !(await autosaveItem.isChecked());
+            await autosaveItem.setChecked(next);
+            await handlers.onToggleAutosave(next);
+          },
+        });
         autosaveRef.current = autosaveItem;
 
-        recentMenuRef.current = await Submenu.new({ id: 'file.recent', text: 'Recent Files', items: [] });
-        const clearRecentItem = await MenuItem.new({ id: 'file.recent.clear', text: 'Clear Recent' });
+        recentMenuRef.current = await Submenu.new({
+          id: 'file.recent',
+          text: 'Recent Files',
+          items: [],
+        });
+        const clearRecentItem = await MenuItem.new({
+          id: 'file.recent.clear',
+          text: 'Clear Recent',
+        });
 
-        const reset = await MenuItem.new({ id: 'game.reset', text: 'Reset', action: handlers.onReset });
+        const reset = await MenuItem.new({
+          id: 'game.reset',
+          text: 'Reset',
+          action: handlers.onReset,
+        });
         const game = await Submenu.new({ id: 'game', text: 'Game', items: [reset] });
 
         const menu = await Menu.default();
@@ -44,7 +75,9 @@ export function useAppMenu(autosave: boolean, handlers: Handlers) {
         try {
           const byId = await menu.get('file');
           if (byId) fileMenu = byId as Submenu;
-        } catch {}
+        } catch {
+          // ignore
+        }
         try {
           const topItems = await menu.items();
           for (const it of topItems) {
@@ -58,7 +91,9 @@ export function useAppMenu(autosave: boolean, handlers: Handlers) {
               // not a submenu
             }
           }
-        } catch {}
+        } catch {
+          // ignore
+        }
 
         if (!fileMenu) {
           fileMenu = await Submenu.new({ id: 'file', text: 'File', items: [] });
@@ -70,9 +105,18 @@ export function useAppMenu(autosave: boolean, handlers: Handlers) {
         try {
           const sep = await PredefinedMenuItem.new({ item: 'Separator' });
           await fileMenu.append(sep);
-        } catch {}
+        } catch {
+          // ignore
+        }
 
-        await fileMenu.append([openItem, saveItem, saveAsItem, autosaveItem, recentMenuRef.current, clearRecentItem]);
+        await fileMenu.append([
+          openItem,
+          saveItem,
+          saveAsItem,
+          autosaveItem,
+          recentMenuRef.current,
+          clearRecentItem,
+        ]);
 
         // Place Game menu after View if present; otherwise append at end
         try {
@@ -121,20 +165,32 @@ export function useAppMenu(autosave: boolean, handlers: Handlers) {
     })();
   }, [autosave]);
 
-  async function rebuildRecent(recent: Recent, onClick: (path: string) => Promise<void>, onClear: () => Promise<void>) {
+  async function rebuildRecent(
+    recent: Recent,
+    onClick: (path: string) => Promise<void>,
+    onClear: () => Promise<void>
+  ) {
     const submenu = recentMenuRef.current;
     if (!submenu) return;
     const items = await submenu.items();
     for (let i = items.length - 1; i >= 0; i--) await submenu.removeAt(i);
     for (const entry of recent) {
-      const item = await MenuItem.new({ id: `file.recent.${entry.path}`, text: entry.path, action: () => onClick(entry.path) });
+      const item = await MenuItem.new({
+        id: `file.recent.${entry.path}`,
+        text: entry.path,
+        action: () => onClick(entry.path),
+      });
       await submenu.append(item);
     }
     const parent = fileMenuRef.current;
     if (!parent) return;
     const oldClear = await parent.get('file.recent.clear');
     if (oldClear) await parent.remove(oldClear);
-    const clear = await MenuItem.new({ id: 'file.recent.clear', text: 'Clear Recent', action: onClear });
+    const clear = await MenuItem.new({
+      id: 'file.recent.clear',
+      text: 'Clear Recent',
+      action: onClear,
+    });
     await parent.append(clear);
   }
 

@@ -54,7 +54,7 @@ function App() {
           setEditor(content);
           setCurrentFilePath(cfg.lastFile);
           await load();
-        } catch (e) {
+        } catch {
           // If reopening fails, ignore and keep sample
         }
       } else {
