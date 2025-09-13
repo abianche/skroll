@@ -12,7 +12,15 @@ type Props = {
   diagnostics: Diagnostic[];
 };
 
-export function EditorPane({ editor, onChange, onLoadClick, onValidateClick, onSave, onSaveAs, diagnostics }: Props) {
+export function EditorPane({
+  editor,
+  onChange,
+  onLoadClick,
+  onValidateClick,
+  onSave,
+  onSaveAs,
+  diagnostics,
+}: Props) {
   return (
     <Stack flex={1} gap="sm">
       <Title order={2}>Editor</Title>
@@ -55,4 +63,3 @@ export function EditorPane({ editor, onChange, onLoadClick, onValidateClick, onS
     </Stack>
   );
 }
-

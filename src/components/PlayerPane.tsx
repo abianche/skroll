@@ -49,4 +49,3 @@ export function PlayerPane({ node, choices, error, onChoose, onReset }: Props) {
     </Stack>
   );
 }
-

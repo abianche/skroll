@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AppConfig, RecentEntry } from '../lib/config';
-import { loadConfig as loadRawConfig, saveConfig as saveRawConfig, updateMRU as updateRawMRU } from '../lib/config';
+import {
+  loadConfig as loadRawConfig,
+  saveConfig as saveRawConfig,
+  updateMRU as updateRawMRU,
+} from '../lib/config';
 
 export function useConfigState() {
   const [config, setConfig] = useState<AppConfig>({ autosave: false, recentFiles: [] });
@@ -28,4 +32,3 @@ export function useConfigState() {
 
   return { config, setConfig, configRef, loadConfig, saveConfig, updateMRU };
 }
-

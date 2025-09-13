@@ -32,10 +32,12 @@ export async function fileExists(path: string): Promise<boolean> {
 }
 
 export async function confirmDiscardChanges(): Promise<boolean> {
-  return await confirm('You have unsaved changes. Discard them?', { kind: 'warning', okLabel: 'Discard' });
+  return await confirm('You have unsaved changes. Discard them?', {
+    kind: 'warning',
+    okLabel: 'Discard',
+  });
 }
 
 export async function showError(err: unknown) {
   await message(err?.toString?.() ?? String(err), { kind: 'error', title: 'Error' });
 }
-

@@ -21,4 +21,3 @@ export const SAMPLE = `{
     { "id":"force","text":"Broken latch. Freedom.","end":true }
   ]
 }`;
-

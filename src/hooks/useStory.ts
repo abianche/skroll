@@ -20,24 +20,27 @@ export function useStory() {
     }
   }, []);
 
-  const loadFromContent = useCallback(async (editor: string) => {
-    try {
+  const loadFromContent = useCallback(
+    async (editor: string) => {
       try {
-        const diags = await invoke<Diagnostic[]>('validate_story', { storyJson: editor });
-        setDiagnostics(diags);
-      } catch (ve) {
-        setDiagnostics([]);
-        setError(ve?.toString?.() ?? String(ve));
+        try {
+          const diags = await invoke<Diagnostic[]>('validate_story', { storyJson: editor });
+          setDiagnostics(diags);
+        } catch (ve) {
+          setDiagnostics([]);
+          setError(ve?.toString?.() ?? String(ve));
+          return false;
+        }
+        await invoke('load_story', { content: editor });
+        await refresh();
+        return true;
+      } catch (e) {
+        setError(e?.toString?.() ?? String(e));
         return false;
       }
-      await invoke('load_story', { content: editor });
-      await refresh();
-      return true;
-    } catch (e) {
-      setError(e?.toString?.() ?? String(e));
-      return false;
-    }
-  }, [refresh]);
+    },
+    [refresh]
+  );
 
   const validateOnly = useCallback(async (editor: string) => {
     setError(null);
@@ -50,14 +53,17 @@ export function useStory() {
     }
   }, []);
 
-  const choose = useCallback(async (i: number) => {
-    try {
-      await invoke('choose', { index: i });
-      await refresh();
-    } catch (e) {
-      setError(e?.toString?.() ?? String(e));
-    }
-  }, [refresh]);
+  const choose = useCallback(
+    async (i: number) => {
+      try {
+        await invoke('choose', { index: i });
+        await refresh();
+      } catch (e) {
+        setError(e?.toString?.() ?? String(e));
+      }
+    },
+    [refresh]
+  );
 
   const reset = useCallback(async () => {
     try {
@@ -68,6 +74,15 @@ export function useStory() {
     }
   }, [refresh]);
 
-  return { node, choices, diagnostics, error, refresh, loadFromContent, validateOnly, choose, reset };
+  return {
+    node,
+    choices,
+    diagnostics,
+    error,
+    refresh,
+    loadFromContent,
+    validateOnly,
+    choose,
+    reset,
+  };
 }
-
