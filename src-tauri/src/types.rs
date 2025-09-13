@@ -5,4 +5,3 @@ pub struct NodeView {
     pub text: String,
     pub end: bool,
 }
-

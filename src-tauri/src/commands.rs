@@ -45,7 +45,9 @@ pub fn get_current_node(state: State<'_, Mutex<AppState>>) -> Result<NodeView, S
 
 /// Get available choices as simple views.
 #[tauri::command]
-pub fn get_choices(state: State<'_, Mutex<AppState>>) -> Result<Vec<story_core::ChoiceView>, String> {
+pub fn get_choices(
+    state: State<'_, Mutex<AppState>>,
+) -> Result<Vec<story_core::ChoiceView>, String> {
     let guard = state.lock().map_err(|_| "state poisoned".to_string())?;
     let st = guard
         .state
@@ -76,4 +78,3 @@ pub fn reset(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     st.reset();
     Ok(())
 }
-

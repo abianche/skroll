@@ -1,8 +1,8 @@
 use std::sync::Mutex;
 
+mod commands;
 mod state;
 mod types;
-mod commands;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
