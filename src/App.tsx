@@ -1,219 +1,232 @@
-import { ChangeEvent, useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { Menu, Submenu, MenuItem } from '@tauri-apps/api/menu';
+import { useEffect, useRef, useState } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { Alert, Button, Flex, Group, Paper, Stack, Text, Textarea, Title } from '@mantine/core';
-
-type ChoiceView = { text: string; next: string };
-type NodeView = { id: string; text: string; end: boolean };
-type Diagnostic = Record<string, unknown>;
+import { Flex } from '@mantine/core';
+import {
+  pickOpenJson,
+  pickSaveJson,
+  readFile,
+  writeFile,
+  fileExists,
+  confirmDiscardChanges,
+  showError,
+} from './lib/file';
+import { useConfigState } from './hooks/useConfigState';
+import { useStory } from './hooks/useStory';
+import { useAppMenu } from './menu/useAppMenu';
+import { EditorPane } from './components/EditorPane';
+import { PlayerPane } from './components/PlayerPane';
+import { SAMPLE } from './defaultStory';
+import type { NodeView } from './types';
 
 const appWindow = getCurrentWindow();
 
-const SAMPLE = `{
-  "variables": { "hasKey": false, "courage": 0 },
-  "start": "intro",
-  "nodes": [
-    { "id":"intro","text":"You wake up.","choices":[
-      {"text":"Search","next":"search"},
-      {"text":"Knock","next":"knock"}
-    ]},
-    { "id":"search","text":"You find a key.","set":{"hasKey":true},"choices":[
-      {"text":"Back","next":"door"}
-    ]},
-    { "id":"knock","text":"Silence. Courage +1.","inc":{"courage":1},"choices":[
-      {"text":"Back","next":"door"}
-    ]},
-    { "id":"door","text":"A locked door.","choices":[
-      {"text":"Use key","if":"hasKey == true","next":"open"},
-      {"text":"Force it","if":"courage >= 2","next":"force"},
-      {"text":"Keep knocking","next":"knock"}
-    ]},
-    { "id":"open","text":"Freedom.","end":true },
-    { "id":"force","text":"Broken latch. Freedom.","end":true }
-  ]
-}`;
-
 function App() {
   const [editor, setEditor] = useState<string>(SAMPLE);
-  const [node, setNode] = useState<NodeView | null>(null);
-  const [choices, setChoices] = useState<ChoiceView[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
+  const [currentFilePath, setCurrentFilePath] = useState<string | null>(null);
+  const [autosave, setAutosave] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
 
-  async function refresh() {
-    try {
-      const n = await invoke<NodeView>('get_current_node');
-      const ch = await invoke<ChoiceView[]>('get_choices');
-      setNode(n);
-      setChoices(ch);
-      setError(null);
-    } catch (e) {
-      setError(e?.toString?.() ?? String(e));
-    }
-  }
+  const autosaveTimer = useRef<number | null>(null);
+  const isDirtyRef = useRef<boolean>(false);
+  useEffect(() => {
+    isDirtyRef.current = isDirty;
+  }, [isDirty]);
+
+  const { config, setConfig, configRef, loadConfig, saveConfig, updateMRU } = useConfigState();
+  const { node, choices, diagnostics, error, loadFromContent, validateOnly, choose, reset } =
+    useStory();
 
   async function load() {
-    try {
-      // Run validation first to provide detailed diagnostics (non-blocking)
-      try {
-        const diags = await invoke<Diagnostic[]>('validate_story', { storyJson: editor });
-        setDiagnostics(diags);
-      } catch (ve) {
-        // Surface validation call failures in the generic error area
-        setDiagnostics([]);
-        setError(ve?.toString?.() ?? String(ve));
-        return;
-      }
-
-      await invoke('load_story', { content: editor });
-      await refresh();
-    } catch (e) {
-      setError(e?.toString?.() ?? String(e));
-    }
-  }
-
-  async function validateOnly() {
-    setError(null);
-    try {
-      const diags = await invoke<Diagnostic[]>('validate_story', { storyJson: editor });
-      setDiagnostics(diags);
-    } catch (e) {
-      setDiagnostics([]);
-      setError(e?.toString?.() ?? String(e));
-    }
-  }
-
-  async function choose(i: number) {
-    try {
-      await invoke('choose', { index: i });
-      await refresh();
-    } catch (e) {
-      setError(e?.toString?.() ?? String(e));
-    }
-  }
-
-  async function reset() {
-    try {
-      await invoke('reset');
-      await refresh();
-    } catch (e) {
-      setError(e?.toString?.() ?? String(e));
-    }
+    const ok = await loadFromContent(editor);
+    if (ok) setIsDirty(false);
   }
 
   // Auto-load sample on first run for convenience
   useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Create an application menu: Default platform items + Game > Reset
-  useEffect(() => {
     (async () => {
-      try {
-        const reset = await MenuItem.new({
-          id: 'game.reset',
-          text: 'Reset',
-          action: async () => {
-            try {
-              await invoke('reset');
-              await refresh();
-            } catch {
-              // noop
-            }
-          },
-        });
-        const game = await Submenu.new({ id: 'game', text: 'Game', items: [reset] });
-        // Start from the platform default menu so you keep standard items.
-        const menu = await Menu.default();
-        await menu.append(game);
-        // App-wide (required on macOS). Safe on all platforms. Replaces current app menu.
-        await menu.setAsAppMenu();
-        // Window menu on Windows/Linux; macOS does not support per-window menus.
+      // Load config and optionally reopen last file
+      const cfg = await loadConfig();
+      setConfig(cfg);
+      setAutosave(!!cfg.autosave);
+      if (cfg.lastFile && (await fileExists(cfg.lastFile))) {
         try {
-          await menu.setAsWindowMenu(appWindow);
-        } catch {
-          // noop
+          const content = await readFile(cfg.lastFile);
+          setEditor(content);
+          setCurrentFilePath(cfg.lastFile);
+          await load();
+        } catch (e) {
+          // If reopening fails, ignore and keep sample
         }
-      } catch {
-        // If menu APIs aren't available or fail, skip silently.
+      } else {
+        await load();
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Application menu
+  const menu = useAppMenu(autosave, {
+    onOpen: async () => {
+      try {
+        if (isDirtyRef.current) {
+          const discard = await confirmDiscardChanges();
+          if (!discard) return;
+        }
+        const path = await pickOpenJson();
+        if (!path) return;
+        const content = await readFile(path);
+        setEditor(content);
+        setCurrentFilePath(path);
+        await load();
+        const nextList = updateMRU(path);
+        await saveConfig();
+        await menu.rebuildRecent(nextList, handleOpenRecent, handleClearRecent);
+      } catch (e) {
+        await showError(e);
+      }
+    },
+    onSave: async () => {
+      await handleSave();
+    },
+    onSaveAs: async () => {
+      await handleSaveAs();
+    },
+    onReset: async () => {
+      await reset();
+    },
+    onToggleAutosave: async (next) => {
+      setAutosave(next);
+      const nextCfg = { ...configRef.current, autosave: next };
+      setConfig(nextCfg);
+      await saveConfig();
+    },
+  });
+
+  async function handleOpenRecent(path: string) {
+    try {
+      if (isDirtyRef.current) {
+        const discard = await confirmDiscardChanges();
+        if (!discard) return;
+      }
+      if (!(await fileExists(path))) {
+        const pruned = configRef.current.recentFiles.filter((e) => e.path !== path);
+        setConfig({ ...configRef.current, recentFiles: pruned });
+        await saveConfig();
+        await menu.rebuildRecent(pruned, handleOpenRecent, handleClearRecent);
+        return;
+      }
+      const text = await readFile(path);
+      setEditor(text);
+      setCurrentFilePath(path);
+      await load();
+      const nextList = updateMRU(path);
+      await saveConfig();
+      await menu.rebuildRecent(nextList, handleOpenRecent, handleClearRecent);
+    } catch (e) {
+      await showError(e);
+    }
+  }
+
+  async function handleClearRecent() {
+    const empty: typeof config.recentFiles = [];
+    setConfig({ ...configRef.current, recentFiles: empty });
+    await saveConfig();
+    await menu.rebuildRecent(empty, handleOpenRecent, handleClearRecent);
+  }
+
+  // Keep Recent Files menu in sync with config changes
+  useEffect(() => {
+    (async () => {
+      await menu.rebuildRecent(config.recentFiles, handleOpenRecent, handleClearRecent);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.recentFiles]);
+
+  // Handle window close: prompt to save if dirty
+  useEffect(() => {
+    const unlisten = appWindow.onCloseRequested(async (event) => {
+      if (!isDirty) return;
+      event.preventDefault();
+      const discard = await confirmDiscardChanges();
+      if (discard) await appWindow.close();
+    });
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }, [isDirty]);
+
+  async function handleSave(): Promise<void> {
+    try {
+      const path = currentFilePath ?? (await pickSaveJson('story.json'));
+      if (!path) return;
+      await writeFile(path, prettyOrRaw(editor));
+      setCurrentFilePath(path);
+      setIsDirty(false);
+      const nextList = updateMRU(path);
+      await saveConfig();
+      await menu.rebuildRecent(nextList, handleOpenRecent, handleClearRecent);
+    } catch (e) {
+      await showError(e);
+    }
+  }
+
+  async function handleSaveAs(): Promise<void> {
+    try {
+      const path = await pickSaveJson('story.json');
+      if (!path) return;
+      await writeFile(path, prettyOrRaw(editor));
+      setCurrentFilePath(path);
+      setIsDirty(false);
+      const nextList = updateMRU(path);
+      await saveConfig();
+      await menu.rebuildRecent(nextList, handleOpenRecent, handleClearRecent);
+    } catch (e) {
+      await showError(e);
+    }
+  }
+
+  // Debounced autosave
+  useEffect(() => {
+    if (!autosave || !currentFilePath) return;
+    if (!isDirty) return;
+    if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = window.setTimeout(() => {
+      handleSave();
+    }, 1200);
+    return () => {
+      if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, autosave, currentFilePath, isDirty]);
+
+  function prettyOrRaw(json: string): string {
+    try {
+      return JSON.stringify(JSON.parse(json), null, 2);
+    } catch {
+      return json;
+    }
+  }
 
   return (
     <Flex gap="md" align="stretch" justify="flex-start" p="10vh">
-      <Stack flex={1} gap="sm">
-        <Title order={2}>Editor</Title>
-        <Textarea
-          value={editor}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setEditor(e.currentTarget.value)}
-          minRows={10}
-          autosize
-          styles={{ input: { fontFamily: 'monospace' } }}
-        />
-        <Group gap="sm">
-          <Button onClick={load}>Load Story</Button>
-          <Button variant="light" onClick={validateOnly}>
-            Validate
-          </Button>
-        </Group>
-        {diagnostics.length > 0 && (
-          <Alert color="yellow" title={`Diagnostics (${diagnostics.length})`}>
-            <Stack gap={4}>
-              {diagnostics.map((d, i) => (
-                <Text key={i} size="sm" style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
-                  {(() => {
-                    try {
-                      return JSON.stringify(d, null, 2);
-                    } catch {
-                      return String(d);
-                    }
-                  })()}
-                </Text>
-              ))}
-            </Stack>
-          </Alert>
-        )}
-      </Stack>
-
-      <Stack flex={1} gap="sm">
-        <Title order={2}>Preview Player</Title>
-        {error && (
-          <Alert color="red" title="Error">
-            {error}
-          </Alert>
-        )}
-        <Paper flex={1} withBorder p="md" radius="md">
-          {node ? (
-            <Stack>
-              <Stack gap={0} mb="md">
-                <Text size="xs" c="dimmed">
-                  {node.id}
-                </Text>
-                <Text size="sm">{node.text}</Text>
-              </Stack>
-              {node.end ? (
-                <Text fw={600}>The End</Text>
-              ) : (
-                <Stack>
-                  {choices.map((c, i) => (
-                    <Button key={i} onClick={() => choose(i)}>
-                      {c.text}
-                    </Button>
-                  ))}
-                </Stack>
-              )}
-            </Stack>
-          ) : (
-            <Text>Load a story to begin.</Text>
-          )}
-        </Paper>
-        <Group>
-          <Button onClick={reset}>Reset</Button>
-        </Group>
-      </Stack>
+      <EditorPane
+        editor={editor}
+        onChange={(val) => {
+          setEditor(val);
+          setIsDirty(true);
+        }}
+        onLoadClick={load}
+        onValidateClick={() => validateOnly(editor)}
+        onSave={handleSave}
+        onSaveAs={handleSaveAs}
+        diagnostics={diagnostics}
+      />
+      <PlayerPane
+        node={node as NodeView | null}
+        choices={choices}
+        error={error}
+        onChoose={choose}
+        onReset={reset}
+      />
     </Flex>
   );
 }
