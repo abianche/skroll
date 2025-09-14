@@ -1,4 +1,4 @@
-name: Rust Checks
+name: CI
 permissions:
   contents: read
 
@@ -8,8 +8,8 @@ on:
     branches: [main]
 
 jobs:
-  rust:
-    name: Format, Clippy, Tests (story-core)
+  backend:
+    name: Backend (w/story-core)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -37,4 +37,37 @@ jobs:
       - name: cargo doc (story-core)
         run: RUSTDOCFLAGS="-D warnings" cargo doc -p story-core --no-deps
 
-  # Note: src-tauri clippy/build to be wired later as platform setup stabilizes.
+  frontend:
+    name: Frontend
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: true
+
+      - name: Verify versions
+        run: |
+          node -v
+          pnpm -v
+
+      - name: Build
+        run: pnpm build
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
