@@ -39,7 +39,9 @@ fn main() -> anyhow::Result<()> {
                     Ok(())
                 }
                 Err(diags) => {
-                    for d in diags {
+                    let n = diags.len(); // record length
+                    for d in &diags {
+                        // <-- borrow, don't move
                         eprintln!(
                             "error: {}{}",
                             d.message,
@@ -49,7 +51,7 @@ fn main() -> anyhow::Result<()> {
                             }
                         );
                     }
-                    anyhow::bail!("compilation failed with {} error(s)", diags.len())
+                    anyhow::bail!("compilation failed with {n} error(s)");
                 }
             }
         }

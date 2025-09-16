@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "$schema": "https://example.com/schemas/skroll-story-1.0.0.json",
+  "entry": "start",
+  "variables": {},
+  "nodes": []
+}
