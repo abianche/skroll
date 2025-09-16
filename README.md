@@ -1,6 +1,6 @@
 ![GitHub License](https://img.shields.io/github/license/abianche/skroll) 
 [![Tauri](https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=fff)](#)
-[![CI](https://github.com/abianche/skroll/actions/workflows/CI.yml/badge.svg)](https://github.com/abianche/skroll/actions/workflows/CI.yml)
+[![CI](https://github.com/abianche/skroll/actions/workflows/ci.yaml/badge.svg)](https://github.com/abianche/skroll/actions/workflows/ci.yaml)
 
 # Skroll: Cross-Platform Narrative Editor
 
