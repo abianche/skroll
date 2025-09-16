@@ -1,5 +1,10 @@
 use clap::{Parser, Subcommand};
-use skroll_lang::compile_to_document;
+use skroll_lang::{
+    compile_to_document,
+    diagnostic,
+    parser,
+    span::Source,
+};
 use std::{fs, path::PathBuf};
 
 #[derive(Parser)]
@@ -13,11 +18,13 @@ struct Cli {
 enum Command {
     /// Compile a .skr source file into runtime JSON.
     Compile {
-        /// Input .skr file
         input: PathBuf,
-        /// Output JSON path (defaults to <input>.story.json)
         #[arg(short, long)]
         out: Option<PathBuf>,
+    },
+    /// Debug: print lexer tokens with spans.
+    DebugLex {
+        input: PathBuf,
     },
 }
 
@@ -39,21 +46,19 @@ fn main() -> anyhow::Result<()> {
                     Ok(())
                 }
                 Err(diags) => {
-                    let n = diags.len(); // record length
+                    let source = Source::new(&src);
                     for d in &diags {
-                        // <-- borrow, don't move
-                        eprintln!(
-                            "error: {}{}",
-                            d.message,
-                            match d.span {
-                                Some(s) => format!(" ({}..{})", s.start, s.end),
-                                None => String::new(),
-                            }
-                        );
+                        eprintln!("{}", diagnostic::format_with_source(d, &source));
                     }
-                    anyhow::bail!("compilation failed with {n} error(s)");
+                    anyhow::bail!("compilation failed");
                 }
             }
+        }
+        Command::DebugLex { input } => {
+            let src = fs::read_to_string(&input)?;
+            let dump = parser::debug_lex(&src);
+            println!("{dump}");
+            Ok(())
         }
     }
 }
