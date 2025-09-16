@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Skroll Story",
+  "type": "object",
+  "required": ["schema_version", "entry", "nodes"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "$schema": { "type": "string" },
+    "entry": { "type": "string" },
+    "variables": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "number" },
+          { "type": "boolean" }
+        ]
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "lines": { "type": "array", "items": { "type": "string" } },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["text", "target"],
+              "properties": {
+                "text": { "type": "string" },
+                "condition": { "type": "string" },
+                "target": { "type": "string" }
+              }
+            }
+          },
+          "divert": { "type": "string" }
+        }
+      }
+    }
+  }
+}
