@@ -1,3 +1,8 @@
 [workspace]
-members = ["crates/story-core", "src-tauri"]
+members = [
+    "crates/story-core",
+    "crates/skroll-schema",
+    "crates/skroll-lang",
+    "src-tauri"
+]
 resolver = "2"

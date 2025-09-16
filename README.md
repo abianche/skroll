@@ -8,9 +8,31 @@
 
 ---
 
+## 🦀 Rust Workspace Quickstart
+
+Scaffold for a branching-story toolchain.
+
+- `story-core`: runtime/IR types
+- `skroll-schema`: versioned JSON document types
+- `skroll-lang`: compiler front-end (parser/validator/emitter) + `skrollc` CLI
+
+```bash
+cargo build
+cargo run -p skroll-lang -- compile examples/hello.skr -o examples/hello.story.json
+```
+
+### Roadmap
+
+* Parser with spans (chumsky)
+* AST → IR (story-core)
+* JSON emission (skroll-schema)
+* Tree-sitter grammar for editor
+
+---
+
 ## ✨ Vision
-This project aims to provide writers and developers with a simple yet powerful editor for **interactive fiction**.  
-Think *Inklewriter* or *Twine*, but designed to run **everywhere**: desktop, mobile, and web.  
+This project aims to provide writers and developers with a simple yet powerful editor for **interactive fiction**.
+Think *Inklewriter* or *Twine*, but designed to run **everywhere**: desktop, mobile, and web.
 
 With this tool you can:
 - Write branching stories in a clean editor.
