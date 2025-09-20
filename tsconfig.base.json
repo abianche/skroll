@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020", "DOM"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@skroll/ipc-contracts": ["packages/ipc-contracts/src"],
+      "@skroll/story-engine": ["packages/story-engine/src"],
+      "@skroll/storage": ["packages/storage/src"]
+    }
+  }
+}
