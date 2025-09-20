@@ -22,9 +22,9 @@ export default function App() {
               key={link.to}
               component={NavLink}
               to={link.to}
-              style={({ isActive }) => ({
-                fontWeight: isActive ? 700 : 500,
-              })}
+              // style={({ isActive }) => ({
+              //   fontWeight: isActive ? 700 : 500,
+              // })}
             >
               {link.label}
             </Anchor>

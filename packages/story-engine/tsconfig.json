@@ -1,13 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": "../../",
     "outDir": "dist",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../ipc-contracts/src/**/*.ts"],
   "references": []
 }

@@ -11,7 +11,8 @@ const alias = {
 };
 
 export const rendererConfig: Configuration = {
-  target: "electron-renderer",
+  target: process.env.NODE_ENV === "development" ? "web" : "electron-renderer",
+  devtool: "cheap-module-source-map",
   entry: {
     renderer: "./src/renderer/index.tsx",
   },
@@ -20,10 +21,7 @@ export const rendererConfig: Configuration = {
       ...rules,
       {
         test: /\.css$/,
-        use: [
-          { loader: "style-loader" },
-          { loader: "css-loader" },
-        ],
+        use: [{ loader: "style-loader" }, { loader: "css-loader" }],
       },
     ],
   },
