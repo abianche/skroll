@@ -5,14 +5,8 @@ build/
 coverage/
 target/
 
-# Rust / Tauri
-src-tauri/
-Cargo.lock
-crates/
-
 # Misc
 .git/
 .idea/
 .vscode/
 pnpm-lock.yaml
-
