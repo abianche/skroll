@@ -1,7 +1,5 @@
 {
   "recommendations": [
-    "vivaxy.vscode-conventional-commits",
-    "tamasfe.even-better-toml",
     "esbenp.prettier-vscode",
     "sonarsource.sonarlint-vscode",
     "dotjoshjohnson.xml",
