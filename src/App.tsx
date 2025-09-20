@@ -1,5 +1,6 @@
 import * as React from "react";
-import { createRoot } from "react-dom/client";
+import { Text } from "@mantine/core";
 
-const root = createRoot(document.body);
-root.render(<h2>Hello from React!</h2>);
+export default function App() {
+  return <Text>Hello, Skroll!</Text>;
+}
