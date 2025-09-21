@@ -137,9 +137,13 @@ importers:
         version: 9.5.4(typescript@5.9.2)(webpack@5.101.3)
 
   packages/ipc-contracts:
+    dependencies:
+      zod:
+        specifier: 4.1.11
+        version: 4.1.11
     devDependencies:
       ts-node:
-        specifier: ^10.9.2
+        specifier: 10.9.2
         version: 10.9.2(@types/node@22.18.6)(typescript@5.9.2)
 
   packages/storage: {}
@@ -4851,6 +4855,9 @@ packages:
   yoctocolors-cjs@2.1.3:
     resolution: {integrity: sha512-U/PBtDf35ff0D8X8D0jfdzHYEPFxAI7jJlxZXwCSez5M3190m+QobIfh+sWDWSHMCWWJN2AWamkegn6vr6YBTw==}
     engines: {node: '>=18'}
+
+  zod@4.1.11:
+    resolution: {integrity: sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==}
 
   zustand@5.0.8:
     resolution: {integrity: sha512-gyPKpIaxY9XcO2vSMrLbiER7QMAMGOQZVRdJ6Zi782jkbzZygq5GI9nG8g+sMgitRtndwaBSl7uiqC49o1SSiw==}
@@ -10689,6 +10696,8 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yoctocolors-cjs@2.1.3: {}
+
+  zod@4.1.11: {}
 
   zustand@5.0.8(@types/react@19.1.13)(react@19.1.1)(use-sync-external-store@1.2.0(react@19.1.1)):
     optionalDependencies:

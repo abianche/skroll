@@ -1,29 +1,24 @@
+import { StorySchema } from "@skroll/ipc-contracts";
 import type { EngineState, EngineView, Story } from "@skroll/ipc-contracts";
+import type { $ZodIssue } from "zod/v4/core";
 
-export function validate(story: Story): { ok: boolean; errors?: string[] } {
-  const errors: string[] = [];
+export type StoryValidationResult =
+  | { ok: true; story: Story }
+  | { ok: false; errors: string[] };
 
-  if (!story.start) {
-    errors.push("Story is missing a start node identifier.");
+function formatIssues(issues: $ZodIssue[]): string[] {
+  return issues.map((issue) => {
+    const path = issue.path.length ? issue.path.map(String).join(".") : "story";
+    return path === "story" ? issue.message : `${path}: ${issue.message}`;
+  });
+}
+
+export function validate(story: Story): StoryValidationResult {
+  const parsed = StorySchema.safeParse(story);
+  if (!parsed.success) {
+    return { ok: false, errors: formatIssues(parsed.error.issues) };
   }
-
-  if (!story.nodes[story.start]) {
-    errors.push(`Start node "${story.start}" does not exist.`);
-  }
-
-  for (const [nodeId, node] of Object.entries(story.nodes)) {
-    if (!node.text) {
-      errors.push(`Node "${nodeId}" is missing display text.`);
-    }
-
-    for (const choice of node.choices) {
-      if (!story.nodes[choice.goto]) {
-        errors.push(`Choice "${choice.id}" in node "${nodeId}" targets unknown node "${choice.goto}".`);
-      }
-    }
-  }
-
-  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+  return { ok: true, story: parsed.data };
 }
 
 function getView(story: Story, nodeId: string): EngineView {
@@ -38,19 +33,20 @@ function getView(story: Story, nodeId: string): EngineView {
   };
 }
 
-export function start(story: Story): { state: EngineState; view: EngineView } {
+export function start(story: Story): { state: EngineState; view: EngineView; story: Story } {
   const validation = validate(story);
   if (!validation.ok) {
-    throw new Error(`Story validation failed: ${validation.errors?.join("; ")}`);
+    throw new Error(`Story validation failed: ${validation.errors.join("; ")}`);
   }
 
-  const startNodeId = story.start;
+  const validatedStory = validation.story;
+  const startNodeId = validatedStory.start;
   const state: EngineState = {
     at: startNodeId,
     history: [startNodeId],
   };
 
-  return { state, view: getView(story, startNodeId) };
+  return { state, view: getView(validatedStory, startNodeId), story: validatedStory };
 }
 
 export function choose(
