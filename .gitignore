@@ -10,5 +10,6 @@ pnpm-debug.log*
 .vscode/
 apps/desktop/.webpack/
 apps/desktop/dist/
+apps/desktop/out/
 packages/*/dist/
 apps/desktop/story.skroll.json
