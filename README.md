@@ -1,5 +1,6 @@
 ![GitHub License](https://img.shields.io/github/license/abianche/skroll) 
 [![CI](https://github.com/abianche/skroll/actions/workflows/ci.yml/badge.svg)](https://github.com/abianche/skroll/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=abianche_skroll&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=abianche_skroll)
 
 # Skroll: Cross-Platform Narrative Editor
 
