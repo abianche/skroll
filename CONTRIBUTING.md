@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in improving this project!  
+Thanks for your interest in improving this project!
 This doc explains how to set up your environment, make changes, and submit pull requests.
 
 ## Code of Conduct
@@ -12,27 +12,26 @@ Be respectful and constructive. By participating, you agree to uphold our commun
 ## Getting Started
 
 ### Prerequisites
-- **Rust** (stable): <https://www.rust-lang.org/tools/install>  
-- **Node.js** (LTS) + **pnpm** (`npm i -g pnpm`)  
-- **Tauri v2 toolchains**:
-  - macOS/iOS: Xcode
-  - Windows: VS Build Tools
-  - Linux: GCC/Clang + libgtk
+- **Node.js** (see `.nvmrc`; use `nvm use` or install from <https://nodejs.org>).
+- **pnpm** (enable with `corepack enable pnpm` or install globally).
+- Optional: Electron prerequisites for your OS (Xcode CLT on macOS, Build Tools on Windows, standard desktop deps on Linux).
 
 ### Install & Run
 ```bash
 pnpm install
-pnpm tauri dev
+pnpm dev:desktop
 ```
-This launches the Tauri window with the React app.
+This boots the Electron app with hot reload for the renderer.
 
 ### Project Structure (high level)
 ```
-crates/story-core/    # Rust core (parser, validator, runtime)
-src-tauri/            # Tauri backend (Rust) + command bridges
-frontend/             # React + TypeScript editor & preview UI
-assets/               # Samples, schema, icons
-docs/                 # Docs and design notes
+apps/desktop/            # Electron Forge workspace (main, preload, renderer)
+  src/main/              # Main process entrypoints
+  src/preload/           # Preload scripts (typed IPC surface)
+  src/renderer/          # React + Mantine UI
+packages/story-engine/   # TypeScript story runtime + validation logic
+packages/storage/        # Persistence helpers and abstractions
+packages/ipc-contracts/  # Shared IPC contracts between main and renderer
 ```
 
 ---
@@ -41,98 +40,87 @@ docs/                 # Docs and design notes
 
 ### 1) Fork & Branch
 - Fork the repo and create a branch from `main`:
-  ```
+  ```bash
   git checkout -b feat/short-descriptor
   ```
-- Use a **small, focused branch** per change.
+- Keep branches small and focused on one change.
 
 ### 2) Run Checks Locally
 ```bash
-# Frontend
-pnpm lint
-pnpm format:check
-pnpm build
-
-# Rust
-cargo fmt -- --check
-cargo clippy -- -D warnings
-cargo test
+pnpm lint           # Workspace lint (ESLint + Prettier rules)
+pnpm typecheck      # TypeScript project references
+pnpm test           # Package-level unit tests (Jest)
+pnpm build          # Ensure the bundles compiles
 ```
+Run targeted scripts (e.g., `pnpm --filter @skroll/desktop lint`) when working inside a single workspace.
 
 ### 3) Commit Style
 - Keep commits small and descriptive.
-- Recommended prefixes: `feat:`, `fix:` `refactor:`, `docs:`, `test:`, `chore:`.
+- Recommended prefixes: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`.
 - Example:
   ```
-  feat(runtime): add conditional operator support (>=, <=)
+  feat(engine): add support for conditional choice guards
   ```
 
 ### 4) Pull Request Guidelines
 - Target branch: `main`.
-- Fill the PR template:
+- Fill out the PR template:
   - What/why of the change
-  - Screenshots/GIFs (UI changes)
-  - Test plan (steps and expected results)
-  - Any breaking changes or migrations
-- Ensure CI is green (lint/format/tests).
+  - Screenshots/GIFs (for renderer/UI work)
+  - Test plan (commands run + expected results)
+  - Any migrations or breaking changes
+- Ensure CI passes (lint/typecheck/tests/build).
+- CI workflow is compatible with `act` for local runs.
 
 ### 5) Reviews & Merging
 - At least **1 approval** required.
-- Squash merge is preferred (clean history).
-- Maintainers may request changes for clarity, tests, or docs.
+- Squash merge is preferred for a tidy history.
+- Maintainers may request changes for clarity, coverage, or docs.
 
 ---
 
 ## Coding Standards
 
-### TypeScript / React (frontend)
-- **TypeScript strict**; no `any` unless justified.
-- Prefer functional components + hooks.
-- State: minimal and localized (e.g., Zustand/Context).
-- Avoid large components; keep files focused.
-- Keep UI accessible (labels, roles, keyboard nav).
-- Use Prettier + ESLint defaults.
+### TypeScript & React (renderer + packages)
+- Strict TypeScript; avoid `any` unless there's a documented reason.
+- Prefer functional components and hooks.
+- Manage state locally where possible (Zustand or React context when shared).
+- Keep components small, accessible, and testable.
+- Follow shared ESLint + Prettier configuration (`pnpm lint --fix`).
 
-### Rust (core + tauri)
-- `cargo fmt` + `clippy -D warnings` clean.
-- Prefer `Result<>` with error types over panics (except tests).
-- Add **unit tests** for core logic (parser, validator, runtime).
-- Keep command surfaces **explicit** and typed (serde models).
+### Electron Main/Preload
+- Keep the main process minimal—delegate work to packages when possible.
+- Maintain `contextIsolation` and use typed channels from `@skroll/ipc-contracts`.
+- Avoid synchronous filesystem or blocking calls on the main thread.
+- Document new IPC channels and preload exports.
 
 ---
 
 ## Tests
 
-### Frontend
-- Add component tests where useful (e.g., choice rendering).
-- Snapshot tests ok for simple UI; prefer behavioral tests.
+### Unit & Integration
+- `pnpm test` runs Jest suites across packages.
+- Add tests alongside new logic (especially story-engine rules and storage flows).
 
-### Rust
-- Unit tests for parsing, validation, state transitions.
-- Include failure cases (unknown node, invalid condition, etc.).
+### Desktop App
+- Ensure `pnpm --filter @skroll/desktop build` succeeds before opening a PR.
+- If you add Playwright or other end-to-end tests, document setup commands in your PR.
 
 ---
 
 ## Documentation
-- Update `README.md` / `docs/` when user-facing behavior changes.
-- For new features, add short usage notes and examples.
-- For schema changes, update `docs/schema.md` and sample story.
-
----
-
-## Issue Labels (suggested)
-- `type:bug`, `type:feature`, `type:docs`, `type:refactor`
-- `area:frontend`, `area:core`, `area:tauri`, `area:infra`
-- `good first issue`, `help wanted`
+- Update `README.md` or `docs/` when user-facing behaviour changes.
+- Add usage notes/examples for new features.
+- Keep architectural decisions in sync if you introduce new patterns.
 
 ---
 
 ## Release (early guidance)
-- Use tags like `v0.x.y` for pre-release versions.
-- Binary builds per-platform via CI (future task).
+- Tag releases as `v0.x.y` until we hit 1.0.
+- Desktop artifacts are produced via Electron Forge (`pnpm --filter @skroll/desktop make`).
 
 ---
 
 ## Questions?
-Open a discussion or an issue with the `question` label.  
+Open a discussion or file an issue with the `question` label.  
 Thanks for contributing!

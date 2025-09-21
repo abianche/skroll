@@ -31,7 +31,8 @@ We are actively building the foundation of this project, and it is not yet ready
 Contributions are welcome!  
 - Open an issue for ideas, bugs, or feature requests.  
 - Fork and PR for code changes.  
-- See [CONTRIBUTING.md](CONTRIBUTING.md).  
+- See [CONTRIBUTING.md](CONTRIBUTING.md).
+- CI workflow is compatible with `act` for local runs.
 
 ---
 
