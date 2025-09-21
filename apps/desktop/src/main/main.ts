@@ -39,7 +39,7 @@ async function createWindow(): Promise<BrowserWindow> {
   const mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
-    show: false,
+    show: !app.isPackaged, // Show immediately in dev, wait in prod
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,
@@ -57,7 +57,11 @@ async function createWindow(): Promise<BrowserWindow> {
   });
 
   await mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  mainWindow.once("ready-to-show", () => mainWindow.show());
+  if (app.isPackaged) {
+    mainWindow.once("ready-to-show", () => {
+      mainWindow.show();
+    });
+  }
 
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools({ mode: "detach" });
