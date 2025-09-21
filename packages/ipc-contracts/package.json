@@ -7,6 +7,9 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
   }
 }

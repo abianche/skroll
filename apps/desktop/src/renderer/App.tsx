@@ -1,5 +1,5 @@
 import { Anchor, Container, Divider, Group, Title } from "@mantine/core";
-import { NavLink, Route, Routes } from "react-router-dom";
+import { NavLink, Route, Routes } from "react-router";
 
 import { EditorPage } from "./pages/Editor";
 import { HomePage } from "./pages/Home";

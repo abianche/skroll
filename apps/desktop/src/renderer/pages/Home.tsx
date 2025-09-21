@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Group, List, Stack, Text, Title } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import { createNewStory, useStoryStore } from "../store";
 
@@ -40,7 +40,7 @@ export function HomePage() {
         console.error("Failed to open story", error);
       }
     },
-    [fetchRecentFiles, loadStory, navigate, resetEngine],
+    [fetchRecentFiles, loadStory, navigate, resetEngine]
   );
 
   const handleNew = useCallback(() => {

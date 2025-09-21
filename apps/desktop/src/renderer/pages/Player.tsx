@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { Button, Group, Stack, Text, Title } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import { useStoryStore } from "../store";
 
@@ -19,7 +19,7 @@ export function PlayerPage() {
         console.error("Failed to apply choice", error);
       }
     },
-    [setEngine],
+    [setEngine]
   );
 
   const handleRestart = useCallback(async () => {
@@ -53,7 +53,9 @@ export function PlayerPage() {
         <Text c="dimmed">Start the story from the editor to begin playing.</Text>
       )}
       <Group>
-        <Button variant="default" onClick={() => navigate("/editor")}>Back to Editor</Button>
+        <Button variant="default" onClick={() => navigate("/editor")}>
+          Back to Editor
+        </Button>
         <Button onClick={handleRestart} disabled={!engineView}>
           Restart
         </Button>

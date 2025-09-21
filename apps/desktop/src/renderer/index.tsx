@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { HashRouter } from "react-router";
 import { MantineProvider, createTheme } from "@mantine/core";
 
 import "@mantine/core/styles.css";
@@ -27,5 +27,5 @@ root.render(
         <App />
       </HashRouter>
     </MantineProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

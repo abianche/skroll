@@ -1,15 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Group,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-  Title,
-} from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { Button, Group, Select, Stack, Text, TextInput, Textarea, Title } from "@mantine/core";
+import { useNavigate } from "react-router";
 
 import { useStoryStore } from "../store";
 
@@ -39,7 +30,7 @@ export function EditorPage() {
         title: value,
       }));
     },
-    [updateStory],
+    [updateStory]
   );
 
   const handleStartChange = useCallback(
@@ -53,7 +44,7 @@ export function EditorPage() {
       }));
       setSelectedNodeId(value);
     },
-    [updateStory],
+    [updateStory]
   );
 
   const handleNodeTextChange = useCallback(
@@ -72,7 +63,7 @@ export function EditorPage() {
         },
       }));
     },
-    [selectedNode, updateStory],
+    [selectedNode, updateStory]
   );
 
   const handleAddNode = useCallback(() => {
@@ -116,13 +107,13 @@ export function EditorPage() {
           [selectedNode.id]: {
             ...current.nodes[selectedNode.id],
             choices: current.nodes[selectedNode.id].choices.map((choice) =>
-              choice.id === choiceId ? { ...choice, text: value } : choice,
+              choice.id === choiceId ? { ...choice, text: value } : choice
             ),
           },
         },
       }));
     },
-    [selectedNode, updateStory],
+    [selectedNode, updateStory]
   );
 
   const handleChoiceGotoChange = useCallback(
@@ -137,13 +128,13 @@ export function EditorPage() {
           [selectedNode.id]: {
             ...current.nodes[selectedNode.id],
             choices: current.nodes[selectedNode.id].choices.map((choice) =>
-              choice.id === choiceId ? { ...choice, goto } : choice,
+              choice.id === choiceId ? { ...choice, goto } : choice
             ),
           },
         },
       }));
     },
-    [selectedNode, updateStory],
+    [selectedNode, updateStory]
   );
 
   const handleAddChoice = useCallback(() => {
@@ -178,19 +169,20 @@ export function EditorPage() {
           [selectedNode.id]: {
             ...current.nodes[selectedNode.id],
             choices: current.nodes[selectedNode.id].choices.filter(
-              (choice) => choice.id !== choiceId,
+              (choice) => choice.id !== choiceId
             ),
           },
         },
       }));
     },
-    [selectedNode, updateStory],
+    [selectedNode, updateStory]
   );
 
   const handleSave = useCallback(async () => {
     let targetPath = filePath;
     if (!targetPath) {
-      targetPath = window.prompt("Enter the path to save the story", "story.skroll.json") ?? undefined;
+      targetPath =
+        window.prompt("Enter the path to save the story", "story.skroll.json") ?? undefined;
     }
     if (!targetPath) {
       return;
