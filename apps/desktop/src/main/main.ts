@@ -75,7 +75,7 @@ async function createWindow(): Promise<BrowserWindow> {
   }
 
   if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools({ mode: "detach" });
+    mainWindow.webContents.openDevTools({ mode: "right" });
   }
 
   return mainWindow;
