@@ -1,15 +1,26 @@
+# Dependencies
 node_modules/
 .pnpm-store/
+
+# Build outputs
+apps/desktop/.webpack/
 dist/
+apps/desktop/dist/
+apps/desktop/out/
+packages/*/dist/
+
+# Test artifacts
 coverage/
+
+# Logs
 *.log
 pnpm-debug.log*
+
+# IDE & tooling
 .DS_Store
 .eslintcache
 .idea/
 .vscode/
-apps/desktop/.webpack/
-apps/desktop/dist/
-apps/desktop/out/
-packages/*/dist/
+
+# Generated files
 apps/desktop/story.skroll.json
