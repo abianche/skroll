@@ -1,5 +1,5 @@
 ![GitHub License](https://img.shields.io/github/license/abianche/skroll) 
-[![CI](https://github.com/abianche/skroll/actions/workflows/ci.yaml/badge.svg)](https://github.com/abianche/skroll/actions/workflows/ci.yaml)
+[![CI](https://github.com/abianche/skroll/actions/workflows/ci.yml/badge.svg)](https://github.com/abianche/skroll/actions/workflows/ci.yml)
 
 # Skroll: Cross-Platform Narrative Editor
 
