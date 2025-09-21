@@ -1,0 +1,49 @@
+{
+  "name": "@skroll/desktop",
+  "productName": "Skroll",
+  "version": "0.1.0",
+  "private": true,
+  "main": ".webpack/main",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "build": "tsc -b",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@emotion/react": "11.14.0",
+    "@mantine/core": "8.3.1",
+    "@mantine/hooks": "8.3.1",
+    "@skroll/ipc-contracts": "workspace:*",
+    "@skroll/storage": "workspace:*",
+    "@skroll/story-engine": "workspace:*",
+    "electron-squirrel-startup": "1.0.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-router": "7.9.1",
+    "zustand": "5.0.8"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "7.9.0",
+    "@electron-forge/maker-deb": "7.9.0",
+    "@electron-forge/maker-rpm": "7.9.0",
+    "@electron-forge/maker-squirrel": "7.9.0",
+    "@electron-forge/maker-zip": "7.9.0",
+    "@electron-forge/plugin-auto-unpack-natives": "7.9.0",
+    "@electron-forge/plugin-fuses": "7.9.0",
+    "@electron-forge/plugin-webpack": "7.9.0",
+    "@electron/fuses": "2.0.0",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
+    "@vercel/webpack-asset-relocator-loader": "1.7.3",
+    "cross-env": "10.0.0",
+    "css-loader": "7.1.2",
+    "electron": "38.1.2",
+    "fork-ts-checker-webpack-plugin": "7.3.0",
+    "style-loader": "4.0.0",
+    "ts-loader": "9.5.4"
+  }
+}

@@ -1,11 +1,10 @@
-import * as React from "react";
+import React from "react";
 import { createRoot } from "react-dom/client";
-
-import { createTheme, MantineProvider } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
+import { HashRouter } from "react-router";
+import { MantineProvider, createTheme } from "@mantine/core";
 
 import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
+import "./index.css";
 
 import App from "./App";
 
@@ -15,12 +14,18 @@ const theme = createTheme({
   primaryColor: "blue",
 });
 
-const root = createRoot(document.body);
+const container = document.getElementById("root");
+if (!container) {
+  throw new Error("Root container element not found");
+}
+
+const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <MantineProvider theme={theme} defaultColorScheme="auto">
-      <Notifications />
-      <App />
+      <HashRouter>
+        <App />
+      </HashRouter>
     </MantineProvider>
   </React.StrictMode>
 );
