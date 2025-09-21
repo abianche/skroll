@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
+import type { IpcMainInvokeEvent } from "electron";
 
 import type {
   EngineChooseReq,
@@ -29,7 +30,7 @@ function isValidStoryPath(filePath: string): boolean {
   return SUPPORTED_EXTENSIONS.some((ext) => normalized.endsWith(ext));
 }
 
-function getWindowId(event: Electron.IpcMainInvokeEvent): number {
+function getWindowId(event: IpcMainInvokeEvent): number {
   const win = BrowserWindow.fromWebContents(event.sender);
   return win?.id ?? event.sender.id;
 }
@@ -91,6 +92,7 @@ ipcMain.handle(Channels.StoryOpen, async (_event, request: StoryOpenReq): Promis
   }
 
   const story = await readJsonFile<Story>(request.path);
+  // TODO: validate story
   await addRecent(request.path);
   return { story };
 });
@@ -118,7 +120,7 @@ ipcMain.handle(
     engineStates.set(windowId, result.state);
     engineStories.set(windowId, request.story);
     return result;
-  },
+  }
 );
 
 ipcMain.handle(
@@ -135,7 +137,7 @@ ipcMain.handle(
     const result = engineChoose(story, state, request.choiceId);
     engineStates.set(windowId, result.state);
     return result;
-  },
+  }
 );
 
 ipcMain.handle(Channels.AppRecent, async (): Promise<AppRecentRes> => {

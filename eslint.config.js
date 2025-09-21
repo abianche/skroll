@@ -6,6 +6,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import importPlugin from "eslint-plugin-import";
 import prettier from "eslint-config-prettier";
 import jest from "eslint-plugin-jest";
+import globals from "globals";
 
 export default [
   js.configs.recommended,
@@ -27,7 +28,11 @@ export default [
     },
     rules: {
       "react/react-in-jsx-scope": "off",
-      // Add more rules as needed
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
     },
     settings: {
       react: { version: "detect" },
@@ -53,12 +58,28 @@ export default [
     },
   },
   {
+    files: ["apps/desktop/src/main/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        NodeJS: "readonly",
+      },
+    },
+  },
+  {
+    files: ["apps/desktop/src/renderer/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
+  {
     files: ["packages/storage/src/**/*.ts"],
     languageOptions: {
       globals: {
-        process: "readonly",
+        ...globals.node,
         NodeJS: "readonly",
-        // add more Node.js globals if needed
       },
     },
   },
