@@ -25,10 +25,14 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      - name: Get pnpm version from package.json
+        id: pnpm-version
+        run: echo "PNPM_VERSION=$(jq -r '.packageManager' package.json | cut -d'@' -f2)" >> $GITHUB_OUTPUT
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: ${{ steps.pnpm-version.outputs.PNPM_VERSION }}
           run_install: true
 
       - name: Verify versions
