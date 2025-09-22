@@ -20,7 +20,7 @@ pnpm-debug.log*
 .DS_Store
 .eslintcache
 .idea/
-.vscode/
+.vscode/settings.json
 
 # Generated files
 apps/desktop/story.skroll.json
