@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,16 +26,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
 
-      - name: Get pnpm version from package.json
-        id: pnpm-version
-        run: echo "PNPM_VERSION=$(jq -r '.packageManager' package.json | cut -d'@' -f2)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ steps.pnpm-version.outputs.PNPM_VERSION }}
-          run_install: true
+      - name: Enable corepack
+        run: corepack enable
 
       - name: Verify versions
         run: |
@@ -51,6 +50,11 @@ jobs:
 
       - name: Build native parser
         run: pnpm ts:build-native
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 4.0.15
 
       - name: Build WASM parser
         run: pnpm ts:build-wasm
