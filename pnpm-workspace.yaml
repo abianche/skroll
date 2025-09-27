@@ -5,4 +5,5 @@ packages:
 onlyBuiltDependencies:
   - electron
   - electron-winstaller
+  - tree-sitter-cli
   - unrs-resolver

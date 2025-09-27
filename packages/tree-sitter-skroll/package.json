@@ -1,0 +1,30 @@
+{
+  "name": "@skroll/tree-sitter-skroll",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rimraf build tree-sitter-skroll.wasm skroll.dylib skroll.dylib.dSYM",
+    "build": "pnpm run gen && tsc -b",
+    "gen": "tree-sitter generate --no-bindings",
+    "build:native": "pnpm run gen && tree-sitter build",
+    "build:wasm": "pnpm run gen && tree-sitter build --wasm --output ./tree-sitter-skroll.wasm",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "0.22.6"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.skroll",
+      "injection-regex": "^skroll$",
+      "file-types": [
+        "skr"
+      ],
+      "highlights": "queries/highlights.scm",
+      "indents": "queries/indents.scm"
+    }
+  ]
+}
