@@ -24,10 +24,9 @@ pnpm-debug.log*
 
 # Generated files
 apps/desktop/story.skroll.json
-packages/grammar-skroll/build
-packages/grammar-skroll/parser.dylib
-packages/grammar-skroll/parser.dylib.dSYM
-packages/grammar-skroll/tree-sitter-skroll.wasm
+packages/tree-sitter-skroll/build
+packages/tree-sitter-skroll/skroll.*
+packages/tree-sitter-skroll/tree-sitter-skroll.wasm
 
 # Dev
 __dev__/

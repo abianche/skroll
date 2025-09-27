@@ -5,11 +5,9 @@ permissions:
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -40,8 +38,27 @@ jobs:
           node -v
           pnpm -v
 
+      - name: Install OS build tools (for native parser)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate grammar sources
+        run: pnpm ts:gen
+
+      - name: Build native parser
+        run: pnpm ts:build-native
+
+      - name: Build WASM parser
+        run: pnpm ts:build-wasm
+
+      - name: Smoke test grammar (parse + highlight sample)
+        run: |
+          pnpm ts:parse:sample
+          pnpm ts:highlight:sample
 
       - name: Build
         run: pnpm build
