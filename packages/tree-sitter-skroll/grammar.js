@@ -146,7 +146,7 @@ module.exports = grammar({
     // Single-line (// …) and multi-line (/* … */) comments.
     // token() prevents backtracking inside their bodies for performance.
     comment: ($) =>
-      token(choice(seq("//", /[^\n\r]*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/"))),
+      token(choice(seq("//", /[^\n\r]*/), seq("/*", /[^*]*\*+([^/*][^*]*\*+)*/, "/"))), // NOSONAR: Tree-sitter compiles this regex into a DFA, so there's no pathological backtracking
 
     // Top-level elements that can appear in a story file outside of metadata.
     _statement: ($) =>
