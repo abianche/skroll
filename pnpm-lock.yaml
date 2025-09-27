@@ -136,6 +136,14 @@ importers:
         specifier: 9.5.4
         version: 9.5.4(typescript@5.9.2)(webpack@5.101.3)
 
+  packages/engine-skroll: {}
+
+  packages/grammar-skroll:
+    devDependencies:
+      tree-sitter-cli:
+        specifier: 0.22.6
+        version: 0.22.6
+
   packages/ipc-contracts:
     dependencies:
       zod:
@@ -145,6 +153,8 @@ importers:
       ts-node:
         specifier: 10.9.2
         version: 10.9.2(@types/node@22.18.6)(typescript@5.9.2)
+
+  packages/parser-skroll: {}
 
   packages/storage: {}
 
@@ -4401,6 +4411,10 @@ packages:
 
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+
+  tree-sitter-cli@0.22.6:
+    resolution: {integrity: sha512-s7mYOJXi8sIFkt/nLJSqlYZP96VmKTc3BAwIX0rrrlRxWjWuCwixFqwzxWZBQz4R8Hx01iP7z3cT3ih58BUmZQ==}
+    hasBin: true
 
   trim-repeated@1.0.0:
     resolution: {integrity: sha512-pkonvlKk8/ZuR0D5tLW8ljt5I8kmxp2XKymhepUeOdCEfKpZaktSArkLHZt76OB1ZvO9bssUsDty4SWhLvZpLg==}
@@ -10183,6 +10197,8 @@ snapshots:
   toidentifier@1.0.1: {}
 
   tr46@0.0.3: {}
+
+  tree-sitter-cli@0.22.6: {}
 
   trim-repeated@1.0.0:
     dependencies:

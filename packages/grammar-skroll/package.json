@@ -5,8 +5,23 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -b",
+    "build": "pnpm run gen && tsc -b",
+    "gen": "tree-sitter generate --no-bindings",
+    "build:native": "pnpm run gen && tree-sitter build",
+    "build:wasm": "pnpm run gen && tree-sitter build --wasm",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\""
-  }
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "0.22.6"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.skroll",
+      "injection-regex": "^skroll$",
+      "file-types": [
+        "skr"
+      ]
+    }
+  ]
 }
