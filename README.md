@@ -1,8 +1,8 @@
 ![GitHub License](https://img.shields.io/github/license/abianche/skroll) 
 [![CI](https://github.com/abianche/skroll/actions/workflows/ci.yml/badge.svg)](https://github.com/abianche/skroll/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/abianche/skroll/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/abianche/skroll/actions/workflows/github-code-scanning/codeql)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=abianche_skroll&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=abianche_skroll)
 [![Dependabot Updates](https://github.com/abianche/skroll/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/abianche/skroll/actions/workflows/dependabot/dependabot-updates)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=abianche_skroll&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=abianche_skroll)
 
 # Skroll: Cross-Platform Narrative Editor
 
