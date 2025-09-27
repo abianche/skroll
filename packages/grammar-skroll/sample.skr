@@ -1,0 +1,30 @@
+:::meta
+id: "market-day"
+locale: "en-US"
+version: 1
+:::
+
+story market_day:
+  config:
+    starting_scene = marketplace
+
+  scene marketplace:
+    beat arrival:
+      say narrator "You arrive at the bustling market."
+      stage "Merchants haggle under colorful awnings."
+      choice:
+        option "Browse the stalls" goto browse
+        option "Meet a friend" when hasInvitation goto meet_friend
+
+    beat browse:
+      say narrator "You sample spices and fabrics."
+      emit analytics_event with { action: "browse" }
+      end
+
+    beat meet_friend:
+      say friend "Glad you made it!"
+      goto celebration
+
+    beat celebration:
+      say narrator "The festival drums begin to play."
+      end

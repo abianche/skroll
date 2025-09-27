@@ -1,5 +1,24 @@
 ;; Keywords
-[("story") ("scene") ("beat") ("choice") ("option") ("goto") ("end") ("return") ("when") ("include") ("config") ("set") ("emit") ("say") ("stage") ("with") ("and") ("or") ("not")] @keyword
+((story_declaration "story" @keyword))
+((scene_declaration "scene" @keyword))
+((beat_declaration "beat" @keyword))
+((choice_block "choice" @keyword))
+((option_entry "option" @keyword))
+((goto_transition "goto" @keyword))
+((end_transition) @keyword)
+((return_transition) @keyword)
+((when_clause "when" @keyword))
+((include_directive "include" @keyword))
+((config_block "config" @keyword))
+((set_action "set" @keyword))
+((emit_action "emit" @keyword))
+((emit_action "with" @keyword))
+((say_action "say" @keyword))
+((stage_action "stage" @keyword))
+
+((binary_expression operator: ("and" @keyword)))
+((binary_expression operator: ("or" @keyword)))
+((unary_expression operator: ("not" @keyword)))
 
 ((boolean) @boolean)
 ((number) @number)

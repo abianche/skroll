@@ -15,7 +15,18 @@
     "dev:desktop": "cross-env NODE_ENV=development pnpm --filter @skroll/desktop start",
     "package:desktop": "pnpm --filter @skroll/desktop package",
     "make:desktop": "pnpm --filter @skroll/desktop make",
-    "test": "pnpm -r --if-present test"
+    "test": "pnpm -r --if-present test",
+    "ts:gen": "pnpm --filter @skroll/grammar-skroll run gen",
+    "ts:build-native": "pnpm --filter @skroll/grammar-skroll run build:native",
+    "ts:build-wasm": "pnpm --filter @skroll/grammar-skroll run build:wasm",
+    "ts:gen-build-all": "pnpm ts:gen && pnpm ts:build-native && pnpm ts:build-wasm",
+    "ts:dump-languages": "pnpm exec tree-sitter dump-languages --config-path ./tree-sitter.config.json",
+    "ts:parse": "pnpm exec tree-sitter parse --config-path ./tree-sitter.config.json --scope source.skroll",
+    "ts:parse:sample": "pnpm exec tree-sitter parse --config-path ./tree-sitter.config.json --scope source.skroll packages/grammar-skroll/sample.skr",
+    "ts:highlight": "pnpm exec tree-sitter highlight --config-path ./tree-sitter.config.json --scope source.skroll",
+    "ts:highlight:sample": "pnpm exec tree-sitter highlight --config-path ./tree-sitter.config.json --scope source.skroll packages/grammar-skroll/sample.skr",
+    "ts:playground": "pnpm exec tree-sitter playground --grammar-path packages/grammar-skroll",
+    "ts:link-grammar": "ln -sf packages/grammar-skroll tree-sitter-skroll"
   },
   "devDependencies": {
     "@types/node": "22.18.6",

@@ -378,17 +378,21 @@
                           },
                           {
                             "type": "SYMBOL",
-                            "name": "blank_line"
-                          },
-                          {
-                            "type": "SYMBOL",
                             "name": "inconsistent_indentation"
                           }
                         ]
                       },
                       {
-                        "type": "SYMBOL",
-                        "name": "_newline"
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "_newline"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
                       }
                     ]
                   },
@@ -476,17 +480,21 @@
                           },
                           {
                             "type": "SYMBOL",
-                            "name": "blank_line"
-                          },
-                          {
-                            "type": "SYMBOL",
                             "name": "inconsistent_indentation"
                           }
                         ]
                       },
                       {
-                        "type": "SYMBOL",
-                        "name": "_newline"
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "_newline"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
                       }
                     ]
                   },
@@ -574,17 +582,21 @@
                           },
                           {
                             "type": "SYMBOL",
-                            "name": "blank_line"
-                          },
-                          {
-                            "type": "SYMBOL",
                             "name": "inconsistent_indentation"
                           }
                         ]
                       },
                       {
-                        "type": "SYMBOL",
-                        "name": "_newline"
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "_newline"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
                       }
                     ]
                   },
@@ -652,17 +664,21 @@
                           },
                           {
                             "type": "SYMBOL",
-                            "name": "blank_line"
-                          },
-                          {
-                            "type": "SYMBOL",
                             "name": "inconsistent_indentation"
                           }
                         ]
                       },
                       {
-                        "type": "SYMBOL",
-                        "name": "_newline"
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "_newline"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
                       }
                     ]
                   },
@@ -972,10 +988,6 @@
                           },
                           {
                             "type": "SYMBOL",
-                            "name": "blank_line"
-                          },
-                          {
-                            "type": "SYMBOL",
                             "name": "inconsistent_indentation"
                           },
                           {
@@ -985,8 +997,16 @@
                         ]
                       },
                       {
-                        "type": "SYMBOL",
-                        "name": "_newline"
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "_newline"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
                       }
                     ]
                   },
@@ -1097,17 +1117,21 @@
                                   },
                                   {
                                     "type": "SYMBOL",
-                                    "name": "blank_line"
-                                  },
-                                  {
-                                    "type": "SYMBOL",
                                     "name": "inconsistent_indentation"
                                   }
                                 ]
                               },
                               {
-                                "type": "SYMBOL",
-                                "name": "_newline"
+                                "type": "CHOICE",
+                                "members": [
+                                  {
+                                    "type": "SYMBOL",
+                                    "name": "_newline"
+                                  },
+                                  {
+                                    "type": "BLANK"
+                                  }
+                                ]
                               }
                             ]
                           },

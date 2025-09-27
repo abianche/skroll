@@ -214,8 +214,8 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
 
   if (lexer->lookahead == '\n') {
     lexer->advance(lexer, true);
-    scanner->newline_count++;
 
+    unsigned newlines = 1;
     uint16_t indent_length = 0;
     for (;;) {
       indent_length = read_indentation_length(lexer);
@@ -226,7 +226,11 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
         break;
       }
       lexer->advance(lexer, true);
-      scanner->newline_count++;
+      newlines++;
+    }
+
+    if (newlines > 1) {
+      scanner->newline_count += (uint16_t)(newlines - 1);
     }
 
     if (lexer->lookahead == 0) {
@@ -234,35 +238,36 @@ static bool scan(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
         scanner->dedent_count += scanner->stack_size - 1;
         scanner->stack_size = 1;
       }
-      return true;
+    } else {
+      uint16_t current = current_indent(scanner);
+      if (indent_length > current) {
+        scanner->pending_indent = true;
+        scanner->pending_indent_length = indent_length;
+      } else if (indent_length < current) {
+        uint16_t index = scanner->stack_size;
+        while (index > 0 && indent_length < scanner->stack[index - 1]) {
+          scanner->dedent_count++;
+          index--;
+        }
+        if (index == 0) {
+          scanner->indentation_error = true;
+          scanner->pending_indent = true;
+          scanner->pending_indent_length = indent_length;
+        } else if (indent_length == scanner->stack[index - 1]) {
+          // queued dedents will adjust the stack to this level
+        } else if (indent_length > scanner->stack[index - 1]) {
+          scanner->indentation_error = true;
+          scanner->pending_indent = true;
+          scanner->pending_indent_length = indent_length;
+          scanner->stack_size = index;
+        } else {
+          scanner->indentation_error = true;
+          scanner->stack_size = index;
+        }
+      }
     }
 
-    uint16_t current = current_indent(scanner);
-    if (indent_length > current) {
-      scanner->pending_indent = true;
-      scanner->pending_indent_length = indent_length;
-    } else if (indent_length < current) {
-      uint16_t index = scanner->stack_size;
-      while (index > 0 && indent_length < scanner->stack[index - 1]) {
-        scanner->dedent_count++;
-        index--;
-      }
-      if (index == 0) {
-        scanner->indentation_error = true;
-        scanner->pending_indent = true;
-        scanner->pending_indent_length = indent_length;
-      } else if (indent_length == scanner->stack[index - 1]) {
-        scanner->stack_size = index;
-      } else if (indent_length > scanner->stack[index - 1]) {
-        scanner->indentation_error = true;
-        scanner->pending_indent = true;
-        scanner->pending_indent_length = indent_length;
-        scanner->stack_size = index;
-      } else {
-        scanner->indentation_error = true;
-        scanner->stack_size = index;
-      }
-    }
+    lexer->result_symbol = TOKEN_NEWLINE;
     return true;
   }
 
