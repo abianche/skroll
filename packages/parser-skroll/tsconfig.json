@@ -9,7 +9,5 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
-  "references": [
-    { "path": "../grammar-skroll" }
-  ]
+  "references": [{ "path": "../tree-sitter-skroll" }]
 }

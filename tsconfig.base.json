@@ -15,7 +15,7 @@
       "@skroll/ipc-contracts": ["packages/ipc-contracts/src"],
       "@skroll/story-engine": ["packages/story-engine/src"],
       "@skroll/storage": ["packages/storage/src"],
-      "@skroll/grammar-skroll": ["packages/grammar-skroll/src"],
+      "@skroll/tree-sitter-skroll": ["packages/tree-sitter-skroll/src"],
       "@skroll/parser-skroll": ["packages/parser-skroll/src"],
       "@skroll/engine-skroll": ["packages/engine-skroll/src"]
     }
