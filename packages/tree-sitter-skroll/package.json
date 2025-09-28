@@ -15,13 +15,14 @@
     "install": "node-gyp-build"
   },
   "dependencies": {
-    "node-gyp-build": "^4.8.0"
+    "node-addon-api": "^8.5.0",
+    "node-gyp-build": "4.8.4"
   },
   "devDependencies": {
-    "tree-sitter-cli": "0.22.6"
+    "tree-sitter-cli": "0.25.10"
   },
   "peerDependencies": {
-    "tree-sitter": "^0.25.0"
+    "tree-sitter": "0.25.0"
   },
   "peerDependenciesMeta": {
     "tree-sitter": {
