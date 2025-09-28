@@ -6,7 +6,6 @@ import { rules } from "./webpack.rules";
 
 const alias = {
   "@skroll/ipc-contracts": path.resolve(__dirname, "..", "..", "packages", "ipc-contracts", "src"),
-  "@skroll/story-engine": path.resolve(__dirname, "..", "..", "packages", "story-engine", "src"),
   "@skroll/storage": path.resolve(__dirname, "..", "..", "packages", "storage", "src"),
 };
 

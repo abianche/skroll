@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { Story } from "@skroll/ipc-contracts";
-
+import type { Story } from "../../store";
 import { useStoryStore } from "../../store";
 
 type StoryNode = Story["nodes"][string];
@@ -240,21 +239,15 @@ export function useEditorController(): UseEditorControllerResult {
     async (targetPath: string) => {
       setIsSaving(true);
       try {
-        await window.skroll.story.save(targetPath, story);
-        setFilePath(targetPath);
-        await window.skroll.app.recentFiles();
-        setSaveModalOpen(false);
-        setSaveModalError(null);
-        return true;
-      } catch (error) {
-        console.error("Failed to save story", error);
-        setSaveModalError("Failed to save the story. Please try again.");
+        console.warn("Saving legacy JSON stories is no longer supported", targetPath);
+        setSaveModalError("Saving legacy JSON stories is no longer supported.");
+        setFilePath(undefined);
         return false;
       } finally {
         setIsSaving(false);
       }
     },
-    [setFilePath, story]
+    [setFilePath]
   );
 
   const requestSave = useCallback(() => {
@@ -286,15 +279,10 @@ export function useEditorController(): UseEditorControllerResult {
   }, [pendingSavePath, saveStoryToPath]);
 
   const startEngine = useCallback(async () => {
-    try {
-      const result = await window.skroll.engine.start(story);
-      setEngine(result);
-      return true;
-    } catch (error) {
-      console.error("Unable to start engine", error);
-      return false;
-    }
-  }, [setEngine, story]);
+    console.warn("The legacy story engine is no longer available.");
+    setEngine();
+    return false;
+  }, [setEngine]);
 
   return {
     story,

@@ -29,9 +29,10 @@ apps/desktop/            # Electron Forge workspace (main, preload, renderer)
   src/main/              # Main process entrypoints
   src/preload/           # Preload scripts (typed IPC surface)
   src/renderer/          # React + Mantine UI
-packages/story-engine/   # TypeScript story runtime + validation logic
 packages/storage/        # Persistence helpers and abstractions
 packages/ipc-contracts/  # Shared IPC contracts between main and renderer
+packages/parser-skroll/  # DSL parser built on Tree-sitter
+packages/engine-skroll/  # Experimental DSL runtime helpers
 ```
 
 ---
@@ -100,7 +101,7 @@ Run targeted scripts (e.g., `pnpm --filter @skroll/desktop lint`) when working i
 
 ### Unit & Integration
 - `pnpm test` runs Jest suites across packages.
-- Add tests alongside new logic (especially story-engine rules and storage flows).
+- Add tests alongside new logic (especially storage flows and DSL runtime helpers).
 
 ### Desktop App
 - Ensure `pnpm --filter @skroll/desktop build` succeeds before opening a PR.

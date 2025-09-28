@@ -1,6 +1,6 @@
 import { Button, Group, Stack, Text, Title } from "@mantine/core";
 
-import type { EngineView } from "@skroll/ipc-contracts";
+import type { EngineView } from "../../store";
 
 export type PlayerViewProps = {
   engineView?: EngineView;
@@ -35,7 +35,7 @@ export function PlayerView({ engineView, canRestart, onChoose, onRestart, onBack
           </Stack>
         </Stack>
       ) : (
-        <Text c="dimmed">Start the story from the editor to begin playing.</Text>
+        <Text c="dimmed">The legacy story player is no longer available.</Text>
       )}
       <Group>
         <Button variant="default" onClick={onBackToEditor}>

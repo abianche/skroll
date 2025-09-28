@@ -43,22 +43,14 @@ export function useHomeController(): UseHomeControllerResult {
     async (targetPath: string) => {
       setIsOpening(true);
       try {
-        const response = await window.skroll.story.open(targetPath);
-        loadStory(response.story, targetPath);
-        resetEngine();
-        await refreshRecentFiles();
-        setOpenModalVisible(false);
-        setOpenError(null);
-        return true;
-      } catch (error) {
-        console.error("Failed to open story", error);
-        setOpenError("Failed to open story. Please check the path and try again.");
+        console.warn("Opening legacy JSON stories is no longer supported", targetPath);
+        setOpenError("Opening legacy JSON stories is no longer supported.");
         return false;
       } finally {
         setIsOpening(false);
       }
     },
-    [loadStory, refreshRecentFiles, resetEngine]
+    []
   );
 
   const submitManualPath = useCallback(async () => {

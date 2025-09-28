@@ -1,96 +1,100 @@
 import { z } from "zod";
 
-export const StoryChoiceSchema = z.object({
-  id: z.string().min(1, { error: "Choice id cannot be empty" }).trim(),
-  text: z.string().min(1, { error: "Choice text cannot be empty" }).trim(),
-  goto: z.string().min(1, { error: "Choice destination must be a node id" }).trim(),
-});
-
-export const StoryNodeSchema = z.object({
-  id: z.string().min(1, { error: "Node id cannot be empty" }).trim(),
-  text: z.string().min(1, { error: "Node text cannot be empty" }).trim(),
-  choices: z.array(StoryChoiceSchema),
-});
-
-export const StorySchema = z
-  .object({
-    id: z.string().min(1, { error: "Story id cannot be empty" }).trim(),
-    title: z.string().min(1, { error: "Story title cannot be empty" }).trim(),
-    start: z.string().min(1, { error: "Story start node id cannot be empty" }).trim(),
-    nodes: z.record(z.string(), StoryNodeSchema),
-  })
-  .superRefine((story, ctx) => {
-    if (!Object.prototype.hasOwnProperty.call(story.nodes, story.start)) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["start"],
-        message: `Start node "${story.start}" does not exist.`,
-      });
-    }
-
-    for (const [nodeId, node] of Object.entries(story.nodes)) {
-      if (node.id !== nodeId) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["nodes", nodeId, "id"],
-          message: `Node id "${node.id}" must match its key "${nodeId}".`,
-        });
-      }
-
-      node.choices.forEach((choice, index) => {
-        if (!Object.prototype.hasOwnProperty.call(story.nodes, choice.goto)) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["nodes", nodeId, "choices", index, "goto"],
-            message: `Choice "${choice.id}" in node "${nodeId}" targets unknown node "${choice.goto}".`,
-          });
-        }
-      });
-    }
-  });
-
-export type StoryChoice = z.infer<typeof StoryChoiceSchema>;
-export type StoryNode = z.infer<typeof StoryNodeSchema>;
-export type Story = z.infer<typeof StorySchema>;
-
-export type EngineState = {
-  at: string;
-  history: string[];
-};
-
-export type EngineView = {
-  text: string;
-  choices: { id: string; text: string }[];
-};
-
 export const Channels = {
-  StoryOpen: "story:open",
-  StorySave: "story:save",
-  EngineStart: "engine:start",
-  EngineChoose: "engine:choose",
+  DslCompileText: "dsl:compileText",
+  DslOpenFile: "dsl:openFile",
+  DslSaveFile: "dsl:saveFile",
   AppRecent: "app:recentFiles",
 } as const;
 
-export type StoryOpenReq = { path: string };
-export type StoryOpenRes = { story: Story };
-export type StorySaveReq = { path: string; story: Story };
-export type StorySaveRes = { ok: true };
-export type EngineStartReq = { story: Story };
-export type EngineStartRes = { state: EngineState; view: EngineView };
-export type EngineChooseReq = { choiceId: string };
-export type EngineChooseRes = { state: EngineState; view: EngineView };
 export type AppRecentRes = { files: string[] };
+
+export const DiagnosticSeveritySchema = z.enum(["error", "warning", "info"]);
+
+export type DiagnosticSeverity = z.infer<typeof DiagnosticSeveritySchema>;
+
+export const SourcePositionSchema = z.object({
+  offset: z.number().int().min(0),
+  line: z.number().int().min(1),
+  column: z.number().int().min(1),
+});
+
+export type SourcePosition = z.infer<typeof SourcePositionSchema>;
+
+export const SourceRangeSchema = z.object({
+  start: SourcePositionSchema,
+  end: SourcePositionSchema,
+});
+
+export type SourceRange = z.infer<typeof SourceRangeSchema>;
+
+export const DiagnosticSchema = z.object({
+  code: z.string(),
+  message: z.string(),
+  severity: DiagnosticSeveritySchema,
+  range: SourceRangeSchema,
+});
+
+export type Diagnostic = z.infer<typeof DiagnosticSchema>;
+
+export const DslChoiceSchema = z.object({
+  label: z.string(),
+  target: z.string().optional(),
+  when: z.string().optional(),
+  body: z.string().optional(),
+  range: SourceRangeSchema,
+});
+
+export type DslChoice = z.infer<typeof DslChoiceSchema>;
+
+export const DslNodeKindSchema = z.enum(["story", "scene", "beat", "choice", "config", "unknown"]);
+
+export type DslNodeKind = z.infer<typeof DslNodeKindSchema>;
+
+export const DslNodeSchema = z.lazy(() =>
+  z.object({
+    id: z.string(),
+    kind: DslNodeKindSchema,
+    when: z.string().optional(),
+    body: z.string(),
+    range: SourceRangeSchema,
+    children: z.array(DslNodeSchema),
+    choices: z.array(DslChoiceSchema),
+  })
+);
+
+export type DslNode = z.infer<typeof DslNodeSchema>;
+
+export const DslScriptSchema = z.object({
+  type: z.literal("Script"),
+  metadata: z.record(z.string()),
+  nodes: z.array(DslNodeSchema),
+  range: SourceRangeSchema,
+});
+
+export type DslScript = z.infer<typeof DslScriptSchema>;
+
+export const DslParseResultSchema = z.object({
+  runtime: DslScriptSchema,
+  diagnostics: z.array(DiagnosticSchema),
+});
+
+export type DslParseResult = z.infer<typeof DslParseResultSchema>;
+
+export type DslCompileTextReq = { text: string };
+export type DslCompileTextRes = { result: DslParseResult };
+export type DslOpenFileReq = { path: string };
+export type DslOpenFileRes = { path: string; text: string };
+export type DslSaveFileReq = { path: string; text: string };
+export type DslSaveFileRes = { ok: true };
 
 declare global {
   interface Window {
     skroll: {
-      story: {
-        open(path: string): Promise<StoryOpenRes>;
-        save(path: string, story: Story): Promise<StorySaveRes>;
-      };
-      engine: {
-        start(story: Story): Promise<EngineStartRes>;
-        choose(choiceId: string): Promise<EngineChooseRes>;
+      dsl: {
+        compileText(text: string): Promise<DslCompileTextRes>;
+        openFile(path: string): Promise<DslOpenFileRes>;
+        saveFile(path: string, text: string): Promise<DslSaveFileRes>;
       };
       app: {
         recentFiles(): Promise<AppRecentRes>;

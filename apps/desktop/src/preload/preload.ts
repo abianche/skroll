@@ -2,26 +2,20 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import type {
   AppRecentRes,
-  EngineChooseRes,
-  EngineStartRes,
-  Story,
-  StoryOpenRes,
-  StorySaveRes,
+  DslCompileTextRes,
+  DslOpenFileRes,
+  DslSaveFileRes,
 } from "@skroll/ipc-contracts";
 import { Channels } from "@skroll/ipc-contracts";
 
 const api = {
-  story: {
-    open: (path: string): Promise<StoryOpenRes> =>
-      ipcRenderer.invoke(Channels.StoryOpen, { path }),
-    save: (path: string, story: Story): Promise<StorySaveRes> =>
-      ipcRenderer.invoke(Channels.StorySave, { path, story }),
-  },
-  engine: {
-    start: (story: Story): Promise<EngineStartRes> =>
-      ipcRenderer.invoke(Channels.EngineStart, { story }),
-    choose: (choiceId: string): Promise<EngineChooseRes> =>
-      ipcRenderer.invoke(Channels.EngineChoose, { choiceId }),
+  dsl: {
+    compileText: (text: string): Promise<DslCompileTextRes> =>
+      ipcRenderer.invoke(Channels.DslCompileText, { text }),
+    openFile: (path: string): Promise<DslOpenFileRes> =>
+      ipcRenderer.invoke(Channels.DslOpenFile, { path }),
+    saveFile: (path: string, text: string): Promise<DslSaveFileRes> =>
+      ipcRenderer.invoke(Channels.DslSaveFile, { path, text }),
   },
   app: {
     recentFiles: (): Promise<AppRecentRes> => ipcRenderer.invoke(Channels.AppRecent),
