@@ -31,6 +31,7 @@ type BeatNode = Node & { kind: "beat" };
 type SceneNode = Node & { kind: "scene" };
 type StoryNode = Node & { kind: "story" };
 
+// Guard that a script exposes a top-level `story` declaration we can traverse.
 function assertStoryNode(node: Node | undefined): asserts node is StoryNode {
   if (!node || node.kind !== "story") {
     throw new Error("Runtime does not contain a story declaration.");
@@ -45,6 +46,7 @@ function isBeatNode(node: Node): node is BeatNode {
   return node.kind === "beat";
 }
 
+// Collapse blank or whitespace-only identifiers so downstream logic can rely on them.
 function sanitizeIdentifier(value: string | undefined): string | undefined {
   if (!value) {
     return undefined;
@@ -53,6 +55,7 @@ function sanitizeIdentifier(value: string | undefined): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+// Read the manifest-level config to determine which scene the story should open on.
 function extractStartingScene(story: StoryNode): string | undefined {
   for (const child of story.children) {
     if (child.kind !== "config") {
@@ -60,6 +63,7 @@ function extractStartingScene(story: StoryNode): string | undefined {
     }
     for (const line of child.body.split(/\r?\n/)) {
       const trimmed = line.trim();
+      // Only consider lines that opt into a `starting_scene` declaration.
       if (!trimmed.startsWith("starting_scene")) {
         continue;
       }
@@ -68,6 +72,7 @@ function extractStartingScene(story: StoryNode): string | undefined {
         continue;
       }
       const raw = match[1]?.trim();
+      // Support both quoted and bare identifiers to mirror parser flexibility.
       if (!raw) {
         continue;
       }
@@ -82,6 +87,7 @@ function extractStartingScene(story: StoryNode): string | undefined {
   return undefined;
 }
 
+// Scenes can define many nodes; grab the first beat to begin narration.
 function findFirstBeat(scene: SceneNode): BeatNode | undefined {
   for (const child of scene.children) {
     if (isBeatNode(child)) {
@@ -91,6 +97,7 @@ function findFirstBeat(scene: SceneNode): BeatNode | undefined {
   return undefined;
 }
 
+// Index every beat in the script so choices can resolve targets in O(1).
 function collectBeats(nodes: Node[], beats: Map<string, BeatNode>): void {
   for (const node of nodes) {
     if (isBeatNode(node)) {
@@ -102,10 +109,12 @@ function collectBeats(nodes: Node[], beats: Map<string, BeatNode>): void {
   }
 }
 
+// Detect if a beat body issues an `end` directive, signalling a terminal state.
 function hasEndStatement(body: string): boolean {
   return /(^|\s)end\b/.test(body);
 }
 
+// Use explicit targets when provided, otherwise fall back to deterministic names.
 function createChoiceId(beatId: string, choice: Choice, index: number): string {
   const targetId = sanitizeIdentifier(choice.target);
   if (targetId) {
@@ -114,6 +123,7 @@ function createChoiceId(beatId: string, choice: Choice, index: number): string {
   return `${beatId}::choice-${index}`;
 }
 
+// Precompute identifiers to choices for quick lookup during interaction.
 function buildChoiceMap(beat: BeatNode): Map<string, Choice> {
   const map = new Map<string, Choice>();
   beat.choices.forEach((choice, index) => {
@@ -123,11 +133,13 @@ function buildChoiceMap(beat: BeatNode): Map<string, Choice> {
   return map;
 }
 
+// Preserve author formatting while guarding against stray whitespace.
 function formatBodyText(body: string): string {
   const trimmed = body.trim();
   return trimmed.length > 0 ? trimmed : "";
 }
 
+// Build an interactive session that can advance through beats using player choices.
 export function createSession(runtime: Script): Session {
   if (runtime.type !== "Script") {
     throw new Error("Invalid runtime: expected Script manifest.");
@@ -142,6 +154,7 @@ export function createSession(runtime: Script): Session {
   }
 
   const beats = new Map<string, BeatNode>();
+  // Collect beats from every scene so cross-scene choices can resolve freely.
   collectBeats(runtime.nodes, beats);
 
   const startingSceneId = extractStartingScene(storyNode);
@@ -162,6 +175,7 @@ export function createSession(runtime: Script): Session {
   }
 
   let currentBeat: BeatNode = initialBeat;
+  // Mark the initial state as ended when the beat signals so or lacks choices.
   let ended = hasEndStatement(currentBeat.body);
 
   return {

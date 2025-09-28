@@ -1,6 +1,7 @@
 import Parser from "tree-sitter";
 import { createParser } from "@skroll/tree-sitter-skroll";
 
+// Reuse a single Tree-sitter instance so subsequent parses avoid setup costs.
 const parserInstance: Parser = createParser();
 
 export type DiagnosticSeverity = "error" | "warning" | "info";
@@ -58,6 +59,7 @@ export interface ParseResult {
   diagnostics: Diagnostic[];
 }
 
+// Convert runtime node kinds into friendly labels for diagnostics.
 function describeNodeKind(kind: NodeKind): string {
   switch (kind) {
     case "story":
@@ -79,6 +81,7 @@ function capitalize(value: string): string {
   return value.length > 0 ? value[0].toUpperCase() + value.slice(1) : value;
 }
 
+// Normalise Tree-sitter positional data into the SourceRange shape used throughout the runtime.
 function toRange(node: Parser.SyntaxNode): SourceRange {
   return {
     start: {
@@ -105,6 +108,7 @@ function unquote(value: string): string {
   return value;
 }
 
+// Extract the textual body between `block_start` and `block_end` markers, trimming incidental whitespace.
 function blockBody(node: Parser.SyntaxNode, source: string): string {
   const blockStart = node.children.find((child) => child.type === "block_start");
   const blockEnd = [...node.children].reverse().find((child) => child.type === "block_end");
@@ -114,6 +118,7 @@ function blockBody(node: Parser.SyntaxNode, source: string): string {
   return extractText(source, blockStart.endIndex, blockEnd.startIndex).trim();
 }
 
+// Scan a node for an optional `when` condition and return its cleaned expression.
 function findWhenClause(node: Parser.SyntaxNode): string | undefined {
   const clause = node.namedChildren.find((child) => child.type === "when_clause");
   if (!clause) {
@@ -123,6 +128,7 @@ function findWhenClause(node: Parser.SyntaxNode): string | undefined {
   return condition ? condition.text.trim() : undefined;
 }
 
+// Expand a choice block into individual option entries while composing inherited `when` clauses.
 function parseChoiceBlock(node: Parser.SyntaxNode, source: string): Choice[] {
   const blockCondition = findWhenClause(node);
   const choices: Choice[] = [];
@@ -161,6 +167,7 @@ function parseChoiceBlock(node: Parser.SyntaxNode, source: string): Choice[] {
   return choices;
 }
 
+// Map parser node types to runtime node kinds that the engine understands.
 function toKind(type: string): NodeKind {
   switch (type) {
     case "story_declaration":
@@ -178,6 +185,7 @@ function toKind(type: string): NodeKind {
   }
 }
 
+// Recursively transform syntax tree declarations into runtime nodes with nested structure and choices.
 function buildNode(node: Parser.SyntaxNode, source: string): Node {
   const idNode = node.childForFieldName("name");
   const id = idNode ? idNode.text : "";
@@ -210,6 +218,7 @@ function buildNode(node: Parser.SyntaxNode, source: string): Node {
   };
 }
 
+// Read fenced metadata entries and expose them as key-value pairs on the script.
 function parseMetadata(root: Parser.SyntaxNode, source: string): Record<string, string> {
   const metadataNode = root.namedChildren.find((child) => child.type === "metadata_fence");
   if (!metadataNode) {
@@ -233,6 +242,7 @@ function parseMetadata(root: Parser.SyntaxNode, source: string): Record<string, 
   return metadata;
 }
 
+// Assemble the top-level Script runtime object from the parsed syntax tree.
 function buildScript(root: Parser.SyntaxNode, source: string): Script {
   const metadata = parseMetadata(root, source);
   const nodes: Node[] = [];
@@ -253,6 +263,7 @@ function buildScript(root: Parser.SyntaxNode, source: string): Script {
   };
 }
 
+// Walk the syntax tree to surface parser-level issues like errors, missing nodes, or indentation mismatches.
 function collectDiagnostics(root: Parser.SyntaxNode, source: string): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
   const stack: Parser.SyntaxNode[] = [root];
@@ -290,6 +301,7 @@ function collectDiagnostics(root: Parser.SyntaxNode, source: string): Diagnostic
   return diagnostics;
 }
 
+// Perform semantic validation that relies on the constructed runtime graph and raw syntax tree.
 function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
   const validTargets = new Set<string>();
@@ -307,6 +319,7 @@ function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): D
 
   registerNodeIds(runtime.nodes);
 
+  // Ensure node identifiers remain unique and semantic nodes contain meaningful content.
   function validateNodeList(nodes: Node[], parent?: Node): void {
     const seen = new Map<string, Node>();
     for (const node of nodes) {
@@ -344,6 +357,7 @@ function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): D
 
   validateNodeList(runtime.nodes);
 
+  // Inspect raw syntax for structural mistakes that the runtime representation alone cannot detect.
   function traverseSyntax(node: Parser.SyntaxNode, ancestors: Parser.SyntaxNode[]): void {
     if (node.type === "choice_block") {
       const hasBeatAncestor = ancestors.some((ancestor) => ancestor.type === "beat_declaration");
