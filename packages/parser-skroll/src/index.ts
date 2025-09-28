@@ -58,6 +58,27 @@ export interface ParseResult {
   diagnostics: Diagnostic[];
 }
 
+function describeNodeKind(kind: NodeKind): string {
+  switch (kind) {
+    case "story":
+      return "story";
+    case "scene":
+      return "scene";
+    case "beat":
+      return "beat";
+    case "choice":
+      return "choice";
+    case "config":
+      return "config";
+    default:
+      return "node";
+  }
+}
+
+function capitalize(value: string): string {
+  return value.length > 0 ? value[0].toUpperCase() + value.slice(1) : value;
+}
+
 function toRange(node: Parser.SyntaxNode): SourceRange {
   return {
     start: {
@@ -269,11 +290,136 @@ function collectDiagnostics(root: Parser.SyntaxNode, source: string): Diagnostic
   return diagnostics;
 }
 
+function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  const validTargets = new Set<string>();
+
+  function registerNodeIds(nodes: Node[]): void {
+    for (const node of nodes) {
+      if (node.id) {
+        validTargets.add(node.id);
+      }
+      if (node.children.length > 0) {
+        registerNodeIds(node.children);
+      }
+    }
+  }
+
+  registerNodeIds(runtime.nodes);
+
+  function validateNodeList(nodes: Node[], parent?: Node): void {
+    const seen = new Map<string, Node>();
+    for (const node of nodes) {
+      if (node.id) {
+        const duplicate = seen.get(node.id);
+        if (duplicate) {
+          const parentLabel = parent ? ` within ${describeNodeKind(parent.kind)}${parent.id ? ` "${parent.id}"` : ""}` : "";
+          diagnostics.push({
+            code: "SKR101",
+            message: `Duplicate ${describeNodeKind(node.kind)}${node.id ? ` "${node.id}"` : ""}${parentLabel}.`,
+            severity: "error",
+            range: node.range,
+          });
+        } else {
+          seen.set(node.id, node);
+        }
+      }
+
+      const isSemanticNode = node.kind === "story" || node.kind === "scene" || node.kind === "beat";
+      const isEmpty = node.body.length === 0 && node.children.length === 0 && node.choices.length === 0;
+      if (isSemanticNode && isEmpty) {
+        diagnostics.push({
+          code: "SKR104",
+          message: `${capitalize(describeNodeKind(node.kind))}${node.id ? ` "${node.id}"` : ""} has no content.`,
+          severity: "error",
+          range: node.range,
+        });
+      }
+
+      if (node.children.length > 0) {
+        validateNodeList(node.children, node);
+      }
+    }
+  }
+
+  validateNodeList(runtime.nodes);
+
+  function traverseSyntax(node: Parser.SyntaxNode, ancestors: Parser.SyntaxNode[]): void {
+    if (node.type === "choice_block") {
+      const hasBeatAncestor = ancestors.some((ancestor) => ancestor.type === "beat_declaration");
+      if (!hasBeatAncestor) {
+        diagnostics.push({
+          code: "SKR102",
+          message: "Choice blocks must be nested inside a beat.",
+          severity: "error",
+          range: toRange(node),
+        });
+      }
+    }
+
+    if (node.type === "goto_transition") {
+      const targetNode = node.childForFieldName("target");
+      if (targetNode) {
+        const target = targetNode.text;
+        if (target && !validTargets.has(target)) {
+          diagnostics.push({
+            code: "SKR103",
+            message: `Target "${target}" does not match any declared node.`,
+            severity: "error",
+            range: toRange(targetNode),
+          });
+        }
+      }
+    }
+
+    if (node.type === "option_entry") {
+      const targetNode = node.childForFieldName("target");
+      if (targetNode) {
+        const target = targetNode.text;
+        if (target && !validTargets.has(target)) {
+          diagnostics.push({
+            code: "SKR103",
+            message: `Target "${target}" does not match any declared node.`,
+            severity: "error",
+            range: toRange(targetNode),
+          });
+        }
+      } else {
+        const hasInlineBlock = node.children.some((child) => child.type === "block_start");
+        if (!hasInlineBlock) {
+          const labelNode = node.childForFieldName("label");
+          const label = labelNode ? ` "${unquote(labelNode.text)}"` : "";
+          diagnostics.push({
+            code: "SKR103",
+            message: `Option${label} is missing a target or inline body.`,
+            severity: "error",
+            range: toRange(node),
+          });
+        }
+      }
+    }
+
+    ancestors.push(node);
+    for (const child of node.namedChildren) {
+      traverseSyntax(child, ancestors);
+    }
+    ancestors.pop();
+  }
+
+  traverseSyntax(root, []);
+
+  return diagnostics;
+}
+
 export function parse(script: string): ParseResult {
   const tree = parserInstance.parse(script);
+  const runtime = buildScript(tree.rootNode, script);
   return {
-    runtime: buildScript(tree.rootNode, script),
-    diagnostics: collectDiagnostics(tree.rootNode, script),
+    runtime,
+    diagnostics: [
+      ...collectDiagnostics(tree.rootNode, script),
+      ...collectSemanticDiagnostics(runtime, tree.rootNode),
+    ],
   };
 }
 
