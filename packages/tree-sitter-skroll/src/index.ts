@@ -4,7 +4,6 @@ let cachedLanguage: Parser.Language | null = null;
 
 function loadLanguage(): Parser.Language {
   if (!cachedLanguage) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const binding = require("../bindings/node") as { language: Parser.Language };
     cachedLanguage = binding.language;
   }

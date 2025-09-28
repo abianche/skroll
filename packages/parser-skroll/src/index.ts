@@ -78,7 +78,7 @@ function extractText(source: string, start: number, end: number): string {
 }
 
 function unquote(value: string): string {
-  if (value.length >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+  if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) {
     return value.slice(1, -1);
   }
   return value;
@@ -109,7 +109,8 @@ function parseChoiceBlock(node: Parser.SyntaxNode, source: string): Choice[] {
     if (child.type !== "option_entry") {
       continue;
     }
-    const labelNode = child.childForFieldName("label") ?? child.namedChildren.find((c) => c.type === "string");
+    const labelNode =
+      child.childForFieldName("label") ?? child.namedChildren.find((c) => c.type === "string");
     if (!labelNode) {
       continue;
     }
@@ -197,7 +198,9 @@ function parseMetadata(root: Parser.SyntaxNode, source: string): Record<string, 
       continue;
     }
     const valueNode = entry.childForFieldName("value");
-    const rawValue = valueNode ? extractText(source, valueNode.startIndex, valueNode.endIndex).trim() : "";
+    const rawValue = valueNode
+      ? extractText(source, valueNode.startIndex, valueNode.endIndex).trim()
+      : "";
     metadata[keyNode.text] = valueNode?.type === "string" ? unquote(valueNode.text) : rawValue;
   }
   return metadata;
@@ -207,7 +210,11 @@ function buildScript(root: Parser.SyntaxNode, source: string): Script {
   const metadata = parseMetadata(root, source);
   const nodes: Node[] = [];
   for (const child of root.namedChildren) {
-    if (child.type === "story_declaration" || child.type === "scene_declaration" || child.type === "beat_declaration") {
+    if (
+      child.type === "story_declaration" ||
+      child.type === "scene_declaration" ||
+      child.type === "beat_declaration"
+    ) {
       nodes.push(buildNode(child, source));
     }
   }
@@ -228,7 +235,7 @@ function collectDiagnostics(root: Parser.SyntaxNode, source: string): Diagnostic
       const snippet = extractText(source, current.startIndex, current.endIndex).trim();
       diagnostics.push({
         code: "SKR001",
-        message: snippet.length ? `Unexpected token near \"${snippet}\".` : "Unexpected token.",
+        message: snippet.length ? `Unexpected token near "${snippet}".` : "Unexpected token.",
         severity: "error",
         range: toRange(current),
       });
