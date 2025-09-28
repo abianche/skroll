@@ -27,6 +27,9 @@ apps/desktop/story.skroll.json
 packages/tree-sitter-skroll/build
 packages/tree-sitter-skroll/skroll.*
 packages/tree-sitter-skroll/tree-sitter-skroll.wasm
+*.obj
+*.lib
+*.exp
 
 # Dev
 __dev__/
