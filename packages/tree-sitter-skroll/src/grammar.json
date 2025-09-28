@@ -1,4 +1,5 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "skroll",
   "word": "identifier",
   "rules": {
@@ -1896,5 +1897,6 @@
     "_action",
     "_expression",
     "_literal"
-  ]
+  ],
+  "reserved": {}
 }
