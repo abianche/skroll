@@ -178,7 +178,7 @@ export function createSession(runtime: Script): Session {
 
   let currentBeat: BeatNode = initialBeat;
   // Mark the initial state as ended when the beat signals so or lacks choices.
-  let ended = hasEndStatement(currentBeat.body);
+  let ended = hasEndStatement(currentBeat.body) || currentBeat.choices.length === 0;
 
   return {
     getText(): string {
