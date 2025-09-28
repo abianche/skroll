@@ -67,6 +67,8 @@ function extractStartingScene(story: StoryNode): string | undefined {
       if (!trimmed.startsWith("starting_scene")) {
         continue;
       }
+      // NOTE: This expression may be flaggd for potential ReDoS, but the preceding
+      // `startsWith` guard and linear quantifiers keep it safe and fast.
       const match = trimmed.match(/starting_scene\s*=\s*(.+)$/);
       if (!match) {
         continue;
@@ -204,21 +206,21 @@ export function createSession(runtime: Script): Session {
           throw new Error(`Beat "${currentBeat.id}" does not have any choices.`);
         }
         throw new Error(
-          `Choice "${choiceId}" is not available. Expected one of: ${available.join(", ")}.`,
+          `Choice "${choiceId}" is not available. Expected one of: ${available.join(", ")}.`
         );
       }
 
       const targetId = sanitizeIdentifier(choice.target);
       if (!targetId) {
         throw new Error(
-          `Choice "${choice.label}" from beat "${currentBeat.id}" does not specify a target beat.`,
+          `Choice "${choice.label}" from beat "${currentBeat.id}" does not specify a target beat.`
         );
       }
 
       const nextBeat = beats.get(targetId);
       if (!nextBeat) {
         throw new Error(
-          `Choice "${choice.label}" from beat "${currentBeat.id}" targets unknown beat "${targetId}".`,
+          `Choice "${choice.label}" from beat "${currentBeat.id}" targets unknown beat "${targetId}".`
         );
       }
 
