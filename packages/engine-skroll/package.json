@@ -8,6 +8,12 @@
     "clean": "rimraf dist",
     "build": "tsc -b",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\" \"__tests__/**/*.ts\"",
+    "test": "jest --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/jest": "30.0.0",
+    "jest": "30.2.0",
+    "ts-jest": "29.4.4"
   }
 }
