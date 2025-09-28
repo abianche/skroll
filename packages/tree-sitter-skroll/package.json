@@ -6,16 +6,37 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rimraf build tree-sitter-skroll.wasm skroll.dylib skroll.dylib.dSYM",
-    "build": "pnpm run gen && tsc -b",
-    "gen": "tree-sitter generate --no-bindings",
+    "build": "tsc -b",
+    "gen": "tree-sitter generate",
     "build:native": "pnpm run gen && tree-sitter build",
     "build:wasm": "pnpm run gen && tree-sitter build --wasm --output ./tree-sitter-skroll.wasm",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "install": "node-gyp-build"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.5.0",
+    "node-gyp-build": "4.8.4"
   },
   "devDependencies": {
-    "tree-sitter-cli": "0.22.6"
+    "tree-sitter-cli": "0.25.10"
   },
+  "peerDependencies": {
+    "tree-sitter": "0.25.0"
+  },
+  "peerDependenciesMeta": {
+    "tree-sitter": {
+      "optional": true
+    }
+  },
+  "files": [
+    "grammar.js",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**"
+  ],
   "tree-sitter": [
     {
       "scope": "source.skroll",

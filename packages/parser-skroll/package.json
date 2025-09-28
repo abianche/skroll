@@ -8,5 +8,9 @@
     "build": "tsc -b",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@skroll/tree-sitter-skroll": "workspace:*",
+    "tree-sitter": "0.25.0"
   }
 }

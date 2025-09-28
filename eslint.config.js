@@ -83,5 +83,14 @@ export default [
       },
     },
   },
+  {
+    files: ["packages/tree-sitter-skroll/src/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        NodeJS: "readonly",
+      },
+    },
+  },
   prettier,
 ];
