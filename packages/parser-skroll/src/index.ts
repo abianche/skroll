@@ -122,11 +122,17 @@ function parseChoiceBlock(node: Parser.SyntaxNode, source: string): Choice[] {
     if (blockStart && blockEnd) {
       body = extractText(source, blockStart.endIndex, blockEnd.startIndex).trim();
     }
-    const conditions = [blockCondition, optionCondition].filter(Boolean);
+    const conditions = [blockCondition, optionCondition].filter(
+      (condition): condition is string => Boolean(condition)
+    );
+    const combinedWhen =
+      conditions.length > 1
+        ? conditions.map((condition) => `(${condition})`).join(" and ")
+        : conditions[0];
     choices.push({
       label: unquote(labelNode.text),
       target: targetNode?.text.trim(),
-      when: conditions.length ? conditions.join(" and ") : undefined,
+      when: combinedWhen || undefined,
       body: body && body.length > 0 ? body : undefined,
       range: toRange(child),
     });
