@@ -18,6 +18,7 @@
     "@mantine/core": "8.3.1",
     "@mantine/hooks": "8.3.1",
     "@skroll/ipc-contracts": "workspace:*",
+    "@skroll/parser-skroll": "workspace:*",
     "@skroll/storage": "workspace:*",
     "electron-squirrel-startup": "1.0.1",
     "react": "19.1.1",

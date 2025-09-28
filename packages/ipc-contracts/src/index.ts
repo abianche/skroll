@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, type ZodType } from "zod";
 
 export const Channels = {
   DslCompileText: "dsl:compileText",
@@ -51,7 +51,17 @@ export const DslNodeKindSchema = z.enum(["story", "scene", "beat", "choice", "co
 
 export type DslNodeKind = z.infer<typeof DslNodeKindSchema>;
 
-export const DslNodeSchema = z.lazy(() =>
+export type DslNode = {
+  id: string;
+  kind: DslNodeKind;
+  when?: string;
+  body: string;
+  range: SourceRange;
+  children: DslNode[];
+  choices: DslChoice[];
+};
+
+export const DslNodeSchema: ZodType<DslNode> = z.lazy(() =>
   z.object({
     id: z.string(),
     kind: DslNodeKindSchema,
@@ -63,11 +73,9 @@ export const DslNodeSchema = z.lazy(() =>
   })
 );
 
-export type DslNode = z.infer<typeof DslNodeSchema>;
-
 export const DslScriptSchema = z.object({
   type: z.literal("Script"),
-  metadata: z.record(z.string()),
+  metadata: z.record(z.string(), z.string()),
   nodes: z.array(DslNodeSchema),
   range: SourceRangeSchema,
 });
@@ -104,3 +112,4 @@ declare global {
 }
 
 export {};
+

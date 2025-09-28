@@ -62,6 +62,9 @@ importers:
       '@skroll/ipc-contracts':
         specifier: workspace:*
         version: link:../../packages/ipc-contracts
+      '@skroll/parser-skroll':
+        specifier: workspace:*
+        version: link:../../packages/parser-skroll
       '@skroll/storage':
         specifier: workspace:*
         version: link:../../packages/storage
