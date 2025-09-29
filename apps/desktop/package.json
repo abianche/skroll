@@ -16,7 +16,7 @@
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@mantine/core": "8.3.1",
-    "@mantine/hooks": "8.3.1",
+    "@mantine/hooks": "8.3.2",
     "@skroll/ipc-contracts": "workspace:*",
     "@skroll/parser-skroll": "workspace:*",
     "@skroll/storage": "workspace:*",
