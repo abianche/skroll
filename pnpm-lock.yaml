@@ -59,6 +59,9 @@ importers:
       '@mantine/hooks':
         specifier: 8.3.2
         version: 8.3.2(react@19.1.1)
+      '@skroll/engine-skroll':
+        specifier: workspace:*
+        version: link:../../packages/engine-skroll
       '@skroll/ipc-contracts':
         specifier: workspace:*
         version: link:../../packages/ipc-contracts
