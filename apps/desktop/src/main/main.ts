@@ -14,6 +14,7 @@ import type {
 } from "@skroll/ipc-contracts";
 import { Channels } from "@skroll/ipc-contracts";
 import { addRecent, listRecent } from "@skroll/storage";
+import { createSession } from "@skroll/engine-skroll";
 import { parse } from "@skroll/parser-skroll";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -80,6 +81,17 @@ ipcMain.handle(
   Channels.DslCompileText,
   async (_event, request: DslCompileTextReq): Promise<DslCompileTextRes> => {
     const result = parse(request.text);
+    const hasErrors = result.diagnostics.some((diagnostic) => diagnostic.severity === "error");
+
+    if (!hasErrors) {
+      try {
+        createSession(result.runtime);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Failed to initialise DSL engine: ${message}`);
+      }
+    }
+
     return { result };
   }
 );
