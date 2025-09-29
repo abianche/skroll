@@ -96,18 +96,24 @@ export type DslOpenFileRes = { path: string; text: string };
 export type DslSaveFileReq = { path: string; text: string };
 export type DslSaveFileRes = { ok: true };
 
+export type SkrollDslApi = {
+  compileText(text: string): Promise<DslCompileTextRes>;
+  openFile(path: string): Promise<DslOpenFileRes>;
+  saveFile(path: string, text: string): Promise<DslSaveFileRes>;
+};
+
+export type SkrollAppApi = {
+  recentFiles(): Promise<AppRecentRes>;
+};
+
+export type SkrollApi = {
+  dsl: SkrollDslApi;
+  app: SkrollAppApi;
+};
+
 declare global {
   interface Window {
-    skroll: {
-      dsl: {
-        compileText(text: string): Promise<DslCompileTextRes>;
-        openFile(path: string): Promise<DslOpenFileRes>;
-        saveFile(path: string, text: string): Promise<DslSaveFileRes>;
-      };
-      app: {
-        recentFiles(): Promise<AppRecentRes>;
-      };
-    };
+    skroll: SkrollApi;
   }
 }
 

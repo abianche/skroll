@@ -11,6 +11,9 @@
       "@skroll/ipc-contracts": [
         "../../packages/ipc-contracts/src"
       ],
+      "@skroll/engine-skroll": [
+        "../../packages/engine-skroll/src"
+      ],
       "@skroll/storage": [
         "../../packages/storage/src"
       ],
@@ -26,6 +29,9 @@
   "references": [
     {
       "path": "../../packages/ipc-contracts"
+    },
+    {
+      "path": "../../packages/engine-skroll"
     },
     {
       "path": "../../packages/storage"
