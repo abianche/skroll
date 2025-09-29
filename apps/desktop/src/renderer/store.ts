@@ -1,6 +1,33 @@
 import { create } from "zustand";
 
-import type { EngineState, EngineView, Story } from "@skroll/ipc-contracts";
+export type StoryChoice = {
+  id: string;
+  text: string;
+  goto: string;
+};
+
+export type StoryNode = {
+  id: string;
+  text: string;
+  choices: StoryChoice[];
+};
+
+export type Story = {
+  id: string;
+  title: string;
+  start: string;
+  nodes: Record<string, StoryNode>;
+};
+
+export type EngineState = {
+  at: string;
+  history: string[];
+};
+
+export type EngineView = {
+  text: string;
+  choices: { id: string; text: string }[];
+};
 
 const templateStory: Story = {
   id: "new",
