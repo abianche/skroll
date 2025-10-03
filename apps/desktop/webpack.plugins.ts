@@ -1,11 +1,8 @@
 import path from "node:path";
 import type IForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
-import webpack from "webpack";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ForkTsCheckerWebpackPlugin: typeof IForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const wasmSource = path.resolve(
   __dirname,
@@ -13,22 +10,11 @@ const wasmSource = path.resolve(
   "..",
   "packages",
   "tree-sitter-skroll",
-  "tree-sitter-skroll.wasm",
+  "tree-sitter-skroll.wasm"
 );
 
 export const plugins = [
   new ForkTsCheckerWebpackPlugin({
     logger: "webpack-infrastructure",
-  }),
-  new webpack.IgnorePlugin({
-    resourceRegExp: /^tree-sitter$/,
-  }),
-  new CopyWebpackPlugin({
-    patterns: [
-      {
-        from: wasmSource,
-        to: ".",
-      },
-    ],
   }),
 ];

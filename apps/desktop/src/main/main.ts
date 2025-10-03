@@ -5,8 +5,6 @@ import { app, BrowserWindow, ipcMain } from "electron";
 
 import type {
   AppRecentRes,
-  DslCompileTextReq,
-  DslCompileTextRes,
   DslOpenFileReq,
   DslOpenFileRes,
   DslSaveFileReq,
@@ -14,13 +12,11 @@ import type {
 } from "@skroll/ipc-contracts";
 import { Channels } from "@skroll/ipc-contracts";
 import { addRecent, listRecent } from "@skroll/storage";
-import { createSession } from "@skroll/engine-skroll";
-import { parse } from "@skroll/parser-skroll";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-const DSL_SUPPORTED_EXTENSIONS = [".skroll"];
+const DSL_SUPPORTED_EXTENSIONS = [".skr"];
 
 function isValidDslPath(filePath: string): boolean {
   const normalized = filePath.toLowerCase();
@@ -78,44 +74,31 @@ app.on("window-all-closed", () => {
 });
 
 ipcMain.handle(
-  Channels.DslCompileText,
-  async (_event, request: DslCompileTextReq): Promise<DslCompileTextRes> => {
-    const result = await parse(request.text);
-    const hasErrors = result.diagnostics.some((diagnostic) => diagnostic.severity === "error");
-
-    if (!hasErrors) {
-      try {
-        createSession(result.runtime);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        throw new Error(`Failed to initialise DSL engine: ${message}`);
-      }
+  Channels.DslOpenFile,
+  async (_event, request: DslOpenFileReq): Promise<DslOpenFileRes> => {
+    if (!isValidDslPath(request.path)) {
+      throw new Error("Only .skroll files are supported");
     }
 
-    return { result };
+    const text = await fs.readFile(request.path, "utf-8");
+    await addRecent(request.path);
+    return { path: request.path, text };
   }
 );
 
-ipcMain.handle(Channels.DslOpenFile, async (_event, request: DslOpenFileReq): Promise<DslOpenFileRes> => {
-  if (!isValidDslPath(request.path)) {
-    throw new Error("Only .skroll files are supported");
+ipcMain.handle(
+  Channels.DslSaveFile,
+  async (_event, request: DslSaveFileReq): Promise<DslSaveFileRes> => {
+    if (!isValidDslPath(request.path)) {
+      throw new Error("Only .skroll files are supported");
+    }
+
+    await fs.mkdir(path.dirname(request.path), { recursive: true });
+    await fs.writeFile(request.path, request.text, "utf-8");
+    await addRecent(request.path);
+    return { ok: true };
   }
-
-  const text = await fs.readFile(request.path, "utf-8");
-  await addRecent(request.path);
-  return { path: request.path, text };
-});
-
-ipcMain.handle(Channels.DslSaveFile, async (_event, request: DslSaveFileReq): Promise<DslSaveFileRes> => {
-  if (!isValidDslPath(request.path)) {
-    throw new Error("Only .skroll files are supported");
-  }
-
-  await fs.mkdir(path.dirname(request.path), { recursive: true });
-  await fs.writeFile(request.path, request.text, "utf-8");
-  await addRecent(request.path);
-  return { ok: true };
-});
+);
 
 ipcMain.handle(Channels.AppRecent, async (): Promise<AppRecentRes> => {
   const files = await listRecent();
