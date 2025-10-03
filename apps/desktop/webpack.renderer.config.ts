@@ -15,6 +15,9 @@ export const rendererConfig: Configuration = {
   entry: {
     renderer: "./src/renderer/index.tsx",
   },
+  output: {
+    publicPath: "",
+  },
   module: {
     rules: [
       ...rules,
@@ -22,11 +25,22 @@ export const rendererConfig: Configuration = {
         test: /\.css$/,
         use: [{ loader: "style-loader" }, { loader: "css-loader" }],
       },
+      { test: /\.wasm$/, type: "asset/resource" },
     ],
   },
   plugins,
   resolve: {
-    alias,
+    alias: {
+      ...alias,
+    },
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],
+    mainFields: ["browser", "module", "main"],
+    fallback: {
+      fs: false,
+      path: false,
+    },
+  },
+  experiments: {
+    asyncWebAssembly: true,
   },
 };

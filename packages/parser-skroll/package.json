@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "@skroll/tree-sitter-skroll": "workspace:*",
-    "tree-sitter": "0.25.0"
+    "web-tree-sitter": "0.25.10"
   }
 }

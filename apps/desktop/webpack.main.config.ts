@@ -17,7 +17,15 @@ export const mainConfig: Configuration = {
   },
   plugins,
   resolve: {
-    alias,
+    alias: {
+      ...alias,
+      "@skroll/parser-skroll": false,
+      "@skroll/tree-sitter-skroll": false,
+      "web-tree-sitter": false,
+    },
     extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
+  },
+  experiments: {
+    asyncWebAssembly: true,
   },
 };

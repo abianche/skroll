@@ -1,8 +1,14 @@
-import Parser from "tree-sitter";
+import type { Node as SyntaxNode, Parser } from "web-tree-sitter";
 import { createParser } from "@skroll/tree-sitter-skroll";
 
-// Reuse a single Tree-sitter instance so subsequent parses avoid setup costs.
-const parserInstance: Parser = createParser();
+let parserPromise: Promise<Parser> | undefined;
+
+function ensureParser(): Promise<Parser> {
+  if (!parserPromise) {
+    parserPromise = createParser();
+  }
+  return parserPromise;
+}
 
 export type DiagnosticSeverity = "error" | "warning" | "info";
 
@@ -81,8 +87,20 @@ function capitalize(value: string): string {
   return value.length > 0 ? value[0].toUpperCase() + value.slice(1) : value;
 }
 
+function isSyntaxNode(node: SyntaxNode | null | undefined): node is SyntaxNode {
+  return node !== null && node !== undefined;
+}
+
+function childNodes(node: SyntaxNode): SyntaxNode[] {
+  return node.children.filter(isSyntaxNode);
+}
+
+function namedChildNodes(node: SyntaxNode): SyntaxNode[] {
+  return node.namedChildren.filter(isSyntaxNode);
+}
+
 // Normalise Tree-sitter positional data into the SourceRange shape used throughout the runtime.
-function toRange(node: Parser.SyntaxNode): SourceRange {
+function toRange(node: SyntaxNode): SourceRange {
   return {
     start: {
       offset: node.startIndex,
@@ -109,9 +127,10 @@ function unquote(value: string): string {
 }
 
 // Extract the textual body between `block_start` and `block_end` markers, trimming incidental whitespace.
-function blockBody(node: Parser.SyntaxNode, source: string): string {
-  const blockStart = node.children.find((child) => child.type === "block_start");
-  const blockEnd = [...node.children].reverse().find((child) => child.type === "block_end");
+function blockBody(node: SyntaxNode, source: string): string {
+  const children = childNodes(node);
+  const blockStart = children.find((child) => child.type === "block_start");
+  const blockEnd = [...children].reverse().find((child) => child.type === "block_end");
   if (!blockStart || !blockEnd) {
     return "";
   }
@@ -119,8 +138,8 @@ function blockBody(node: Parser.SyntaxNode, source: string): string {
 }
 
 // Scan a node for an optional `when` condition and return its cleaned expression.
-function findWhenClause(node: Parser.SyntaxNode): string | undefined {
-  const clause = node.namedChildren.find((child) => child.type === "when_clause");
+function findWhenClause(node: SyntaxNode): string | undefined {
+  const clause = namedChildNodes(node).find((child) => child.type === "when_clause");
   if (!clause) {
     return undefined;
   }
@@ -129,22 +148,23 @@ function findWhenClause(node: Parser.SyntaxNode): string | undefined {
 }
 
 // Expand a choice block into individual option entries while composing inherited `when` clauses.
-function parseChoiceBlock(node: Parser.SyntaxNode, source: string): Choice[] {
+function parseChoiceBlock(node: SyntaxNode, source: string): Choice[] {
   const blockCondition = findWhenClause(node);
   const choices: Choice[] = [];
-  for (const child of node.namedChildren) {
+  for (const child of namedChildNodes(node)) {
     if (child.type !== "option_entry") {
       continue;
     }
     const labelNode =
-      child.childForFieldName("label") ?? child.namedChildren.find((c) => c.type === "string");
+      child.childForFieldName("label") ?? namedChildNodes(child).find((c) => c.type === "string");
     if (!labelNode) {
       continue;
     }
     const optionCondition = findWhenClause(child);
     const targetNode = child.childForFieldName("target");
-    const blockStart = child.children.find((c) => c.type === "block_start");
-    const blockEnd = [...child.children].reverse().find((c) => c.type === "block_end");
+    const childList = childNodes(child);
+    const blockStart = childList.find((c) => c.type === "block_start");
+    const blockEnd = [...childList].reverse().find((c) => c.type === "block_end");
     let body: string | undefined;
     if (blockStart && blockEnd) {
       body = extractText(source, blockStart.endIndex, blockEnd.startIndex).trim();
@@ -186,14 +206,14 @@ function toKind(type: string): NodeKind {
 }
 
 // Recursively transform syntax tree declarations into runtime nodes with nested structure and choices.
-function buildNode(node: Parser.SyntaxNode, source: string): Node {
+function buildNode(node: SyntaxNode, source: string): Node {
   const idNode = node.childForFieldName("name");
   const id = idNode ? idNode.text : "";
   const when = findWhenClause(node);
   const children: Node[] = [];
   const choices: Choice[] = [];
 
-  for (const child of node.namedChildren) {
+  for (const child of namedChildNodes(node)) {
     switch (child.type) {
       case "scene_declaration":
       case "beat_declaration":
@@ -219,13 +239,13 @@ function buildNode(node: Parser.SyntaxNode, source: string): Node {
 }
 
 // Read fenced metadata entries and expose them as key-value pairs on the script.
-function parseMetadata(root: Parser.SyntaxNode, source: string): Record<string, string> {
-  const metadataNode = root.namedChildren.find((child) => child.type === "metadata_fence");
+function parseMetadata(root: SyntaxNode, source: string): Record<string, string> {
+  const metadataNode = namedChildNodes(root).find((child) => child.type === "metadata_fence");
   if (!metadataNode) {
     return {};
   }
   const metadata: Record<string, string> = {};
-  for (const entry of metadataNode.namedChildren) {
+  for (const entry of namedChildNodes(metadataNode)) {
     if (entry.type !== "metadata_entry") {
       continue;
     }
@@ -243,10 +263,10 @@ function parseMetadata(root: Parser.SyntaxNode, source: string): Record<string, 
 }
 
 // Assemble the top-level Script runtime object from the parsed syntax tree.
-function buildScript(root: Parser.SyntaxNode, source: string): Script {
+function buildScript(root: SyntaxNode, source: string): Script {
   const metadata = parseMetadata(root, source);
   const nodes: Node[] = [];
-  for (const child of root.namedChildren) {
+  for (const child of namedChildNodes(root)) {
     if (
       child.type === "story_declaration" ||
       child.type === "scene_declaration" ||
@@ -264,9 +284,9 @@ function buildScript(root: Parser.SyntaxNode, source: string): Script {
 }
 
 // Walk the syntax tree to surface parser-level issues like errors, missing nodes, or indentation mismatches.
-function collectDiagnostics(root: Parser.SyntaxNode, source: string): Diagnostic[] {
+function collectDiagnostics(root: SyntaxNode, source: string): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
-  const stack: Parser.SyntaxNode[] = [root];
+  const stack: SyntaxNode[] = [root];
   while (stack.length > 0) {
     const current = stack.pop()!;
     if (current.type === "ERROR") {
@@ -294,7 +314,7 @@ function collectDiagnostics(root: Parser.SyntaxNode, source: string): Diagnostic
         range: toRange(current),
       });
     }
-    for (const child of current.children) {
+    for (const child of childNodes(current)) {
       stack.push(child);
     }
   }
@@ -302,7 +322,7 @@ function collectDiagnostics(root: Parser.SyntaxNode, source: string): Diagnostic
 }
 
 // Perform semantic validation that relies on the constructed runtime graph and raw syntax tree.
-function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): Diagnostic[] {
+function collectSemanticDiagnostics(runtime: Script, root: SyntaxNode): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
   const validTargets = new Set<string>();
 
@@ -358,7 +378,7 @@ function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): D
   validateNodeList(runtime.nodes);
 
   // Inspect raw syntax for structural mistakes that the runtime representation alone cannot detect.
-  function traverseSyntax(node: Parser.SyntaxNode, ancestors: Parser.SyntaxNode[]): void {
+  function traverseSyntax(node: SyntaxNode, ancestors: SyntaxNode[]): void {
     if (node.type === "choice_block") {
       const hasBeatAncestor = ancestors.some((ancestor) => ancestor.type === "beat_declaration");
       if (!hasBeatAncestor) {
@@ -399,7 +419,7 @@ function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): D
           });
         }
       } else {
-        const hasInlineBlock = node.children.some((child) => child.type === "block_start");
+        const hasInlineBlock = childNodes(node).some((child) => child.type === "block_start");
         if (!hasInlineBlock) {
           const labelNode = node.childForFieldName("label");
           const label = labelNode ? ` "${unquote(labelNode.text)}"` : "";
@@ -414,7 +434,7 @@ function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): D
     }
 
     ancestors.push(node);
-    for (const child of node.namedChildren) {
+    for (const child of namedChildNodes(node)) {
       traverseSyntax(child, ancestors);
     }
     ancestors.pop();
@@ -425,8 +445,12 @@ function collectSemanticDiagnostics(runtime: Script, root: Parser.SyntaxNode): D
   return diagnostics;
 }
 
-export function parse(script: string): ParseResult {
-  const tree = parserInstance.parse(script);
+export async function parse(script: string): Promise<ParseResult> {
+  const parser = await ensureParser();
+  const tree = parser.parse(script);
+  if (!tree) {
+    throw new Error("Failed to parse Skroll script.");
+  }
   const runtime = buildScript(tree.rootNode, script);
   return {
     runtime,

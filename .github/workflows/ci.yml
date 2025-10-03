@@ -52,19 +52,11 @@ jobs:
           node -v
           pnpm -v
 
-      - name: Install OS build tools (for native parser)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Generate grammar sources
         run: pnpm ts:gen
-
-      - name: Build native parser
-        run: pnpm ts:build-native
 
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@6ab9eb1bda2574c4ddb79809fc9247783eaf9021 # v14
