@@ -20,4 +20,7 @@ export const mainConfig: Configuration = {
     alias,
     extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
   },
+  experiments: {
+    asyncWebAssembly: true,
+  },
 };

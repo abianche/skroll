@@ -80,7 +80,7 @@ app.on("window-all-closed", () => {
 ipcMain.handle(
   Channels.DslCompileText,
   async (_event, request: DslCompileTextReq): Promise<DslCompileTextRes> => {
-    const result = parse(request.text);
+    const result = await parse(request.text);
     const hasErrors = result.diagnostics.some((diagnostic) => diagnostic.severity === "error");
 
     if (!hasErrors) {

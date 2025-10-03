@@ -29,4 +29,7 @@ export const rendererConfig: Configuration = {
     alias,
     extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],
   },
+  experiments: {
+    asyncWebAssembly: true,
+  },
 };

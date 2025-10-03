@@ -1,27 +1,31 @@
-import Parser from "tree-sitter";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
-// Cache the compiled grammar so repeated consumers don't reload the native binding.
-let cachedLanguage: Parser.Language | null = null;
+import { Language, Parser } from "web-tree-sitter";
 
-// Lazily require the generated Tree-sitter binding only when the language is requested.
-function loadLanguage(): Parser.Language {
-  if (!cachedLanguage) {
-    const binding = require("../bindings/node") as { language: Parser.Language };
-    cachedLanguage = binding.language;
+let languagePromise: Promise<Language> | null = null;
+
+async function loadLanguage(): Promise<Language> {
+  if (!languagePromise) {
+    languagePromise = (async () => {
+      await Parser.init();
+      const wasmPath = path.resolve(__dirname, "..", "tree-sitter-skroll.wasm");
+      const wasm = await readFile(wasmPath);
+      return Language.load(wasm);
+    })();
   }
-  return cachedLanguage;
+  return languagePromise;
 }
 
-export function getLanguage(): Parser.Language {
-  // Surface the cached language directly for callers that only need the grammar object.
+export async function getLanguage(): Promise<Language> {
   return loadLanguage();
 }
 
-export function createParser(): Parser {
+export async function createParser(): Promise<Parser> {
+  const language = await loadLanguage();
   const parser = new Parser();
-  // Build a parser preconfigured with the Skroll grammar.
-  parser.setLanguage(loadLanguage());
+  parser.setLanguage(language);
   return parser;
 }
 
-export type { SyntaxNode } from "tree-sitter";
+export type { Node as SyntaxNode } from "web-tree-sitter";

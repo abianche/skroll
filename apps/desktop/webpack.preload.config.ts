@@ -22,4 +22,7 @@ export const preloadConfig: Configuration = {
     alias,
     extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
   },
+  experiments: {
+    asyncWebAssembly: true,
+  },
 };
