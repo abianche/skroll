@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const wasmSource = path.resolve(
   __dirname,
   "..",
+  "..",
   "packages",
   "tree-sitter-skroll",
   "tree-sitter-skroll.wasm",
