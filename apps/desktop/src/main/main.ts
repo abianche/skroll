@@ -77,7 +77,7 @@ ipcMain.handle(
   Channels.DslOpenFile,
   async (_event, request: DslOpenFileReq): Promise<DslOpenFileRes> => {
     if (!isValidDslPath(request.path)) {
-      throw new Error("Only .skroll files are supported");
+      throw new Error(`Only ${DSL_SUPPORTED_EXTENSIONS.join(", ")} files are supported.`);
     }
 
     const text = await fs.readFile(request.path, "utf-8");
@@ -90,7 +90,7 @@ ipcMain.handle(
   Channels.DslSaveFile,
   async (_event, request: DslSaveFileReq): Promise<DslSaveFileRes> => {
     if (!isValidDslPath(request.path)) {
-      throw new Error("Only .skroll files are supported");
+      throw new Error(`Only ${DSL_SUPPORTED_EXTENSIONS.join(", ")} files are supported.`);
     }
 
     await fs.mkdir(path.dirname(request.path), { recursive: true });

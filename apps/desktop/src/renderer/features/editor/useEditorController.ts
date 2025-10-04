@@ -49,7 +49,7 @@ export function useEditorController(): UseEditorControllerResult {
   const [newNodeId, setNewNodeId] = useState("");
   const [addNodeError, setAddNodeError] = useState<string | null>(null);
   const [isSaveModalOpen, setSaveModalOpen] = useState(false);
-  const [pendingSavePath, setPendingSavePath] = useState("story.skroll.json");
+  const [pendingSavePath, setPendingSavePath] = useState("story.skr");
   const [saveModalError, setSaveModalError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -255,7 +255,7 @@ export function useEditorController(): UseEditorControllerResult {
       void saveStoryToPath(filePath);
       return;
     }
-    setPendingSavePath("story.skroll.json");
+    setPendingSavePath("story.skr");
     setSaveModalError(null);
     setSaveModalOpen(true);
   }, [filePath, saveStoryToPath]);

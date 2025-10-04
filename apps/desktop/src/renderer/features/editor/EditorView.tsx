@@ -81,7 +81,7 @@ export function EditorView({ controller, onPlay }: EditorViewProps) {
           <Stack gap="sm">
             <TextInput
               label="File Path"
-              placeholder="story.skroll.json"
+              placeholder="story.skr"
               value={pendingSavePath}
               onChange={(event) => updatePendingSavePath(event.currentTarget.value)}
               autoFocus

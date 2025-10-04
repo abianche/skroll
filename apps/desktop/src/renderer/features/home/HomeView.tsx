@@ -39,7 +39,7 @@ export function HomeView({
           <Stack gap="sm">
             <TextInput
               label="File Path"
-              placeholder="path/to/story.skroll.json"
+              placeholder="path/to/story.skr"
               value={manualPath}
               onChange={(event) => onManualPathChange(event.currentTarget.value)}
               autoFocus
