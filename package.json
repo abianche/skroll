@@ -16,7 +16,7 @@
     "dev:desktop": "cross-env NODE_ENV=development pnpm --filter @skroll/desktop start",
     "package:desktop": "pnpm --filter @skroll/desktop package",
     "make:desktop": "pnpm --filter @skroll/desktop make",
-    "test": "pnpm -r --if-present test",
+    "test": "pnpm ts:build-wasm && pnpm -r --if-present test",
     "ts:gen": "pnpm --filter @skroll/tree-sitter-skroll gen",
     "ts:build-wasm": "pnpm --filter @skroll/tree-sitter-skroll build:wasm",
     "ts:build-all": "pnpm ts:build-wasm",
