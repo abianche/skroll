@@ -2,19 +2,25 @@
 import { contextBridge, ipcRenderer } from "electron";
 import {
   Channels,
+  type DslCompileTextRes,
+  type DslOpenFileRes,
+  type DslSaveFileRes,
   type SkrollApi,
   type SkrollAppApi,
   type SkrollDslApi,
-  type DslCompileTextRes,
 } from "@skroll/ipc-contracts";
 
+const invoke = <T>(
+  channel: (typeof Channels)[keyof typeof Channels],
+  payload?: unknown,
+) => ipcRenderer.invoke(channel, payload) as Promise<T>;
+
 const dslApi: SkrollDslApi = {
-  compileText: (text): Promise<DslCompileTextRes> =>
-    ipcRenderer.invoke(Channels.DslCompileText, { text }),
+  compileText: (text) => invoke<DslCompileTextRes>(Channels.DslCompileText, { text }),
 
   // keep file I/O via main
-  openFile: (path) => ipcRenderer.invoke(Channels.DslOpenFile, { path }),
-  saveFile: (path, text) => ipcRenderer.invoke(Channels.DslSaveFile, { path, text }),
+  openFile: (path) => invoke<DslOpenFileRes>(Channels.DslOpenFile, { path }),
+  saveFile: (path, text) => invoke<DslSaveFileRes>(Channels.DslSaveFile, { path, text }),
 };
 
 const appApi: SkrollAppApi = {
