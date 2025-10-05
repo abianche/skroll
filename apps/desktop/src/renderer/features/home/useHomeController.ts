@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { createNewStory, useStoryStore } from "../../store";
+import { recentFiles as fetchRecentFiles } from "../../lib/ipc";
 
 export type UseHomeControllerResult = {
   recentFiles: string[];
@@ -28,7 +29,7 @@ export function useHomeController(): UseHomeControllerResult {
 
   const refreshRecentFiles = useCallback(async () => {
     try {
-      const result = await window.skroll.app.recentFiles();
+      const result = await fetchRecentFiles();
       setRecentFiles(result.files);
     } catch (error) {
       console.error("Failed to load recent files", error);

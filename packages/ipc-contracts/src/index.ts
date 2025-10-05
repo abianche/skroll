@@ -113,9 +113,8 @@ export type SkrollApi = {
 
 declare global {
   interface Window {
-    skroll: SkrollApi;
+    skroll?: SkrollApi;
   }
 }
 
 export {};
-

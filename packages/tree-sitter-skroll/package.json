@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf build tree-sitter-skroll.wasm skroll.dylib skroll.dylib.dSYM",
     "build": "tsc -b",
-    "gen": "tree-sitter generate --no-bindings",
+    "gen": "tree-sitter generate",
     "build:wasm": "pnpm run gen && tree-sitter build --wasm --output ./tree-sitter-skroll.wasm",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\""
