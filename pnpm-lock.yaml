@@ -147,6 +147,9 @@ importers:
 
   packages/engine-skroll:
     devDependencies:
+      '@skroll/parser-skroll':
+        specifier: workspace:*
+        version: link:../parser-skroll
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0

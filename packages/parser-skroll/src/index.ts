@@ -35,11 +35,72 @@ export interface Diagnostic {
 
 export type NodeKind = "story" | "scene" | "beat" | "choice" | "config" | "unknown";
 
+export interface SayAction {
+  type: "say";
+  speaker: string;
+  text: string;
+  range: SourceRange;
+}
+
+export interface StageAction {
+  type: "stage";
+  text: string;
+  range: SourceRange;
+}
+
+export interface SetAction {
+  type: "set";
+  state: string;
+  value: string;
+  range: SourceRange;
+}
+
+export interface EmitAction {
+  type: "emit";
+  event: string;
+  payload?: string;
+  range: SourceRange;
+}
+
+export interface GotoAction {
+  type: "goto";
+  target: string;
+  range: SourceRange;
+}
+
+export interface EndAction {
+  type: "end";
+  range: SourceRange;
+}
+
+export interface ReturnAction {
+  type: "return";
+  range: SourceRange;
+}
+
+export interface AssignmentAction {
+  type: "assignment";
+  name: string;
+  value: string;
+  range: SourceRange;
+}
+
+export type Action =
+  | SayAction
+  | StageAction
+  | SetAction
+  | EmitAction
+  | GotoAction
+  | EndAction
+  | ReturnAction
+  | AssignmentAction;
+
 export interface Choice {
   label: string;
   target?: string;
   when?: string;
-  body?: string;
+  actions: Action[];
+  choices: Choice[];
   range: SourceRange;
 }
 
@@ -48,6 +109,7 @@ export interface Node {
   kind: NodeKind;
   when?: string;
   body: string;
+  actions: Action[];
   range: SourceRange;
   children: Node[];
   choices: Choice[];
@@ -147,6 +209,144 @@ function findWhenClause(node: SyntaxNode): string | undefined {
   return condition ? condition.text.trim() : undefined;
 }
 
+function expressionText(node: SyntaxNode, source: string): string {
+  return extractText(source, node.startIndex, node.endIndex).trim();
+}
+
+function parseSayAction(node: SyntaxNode): SayAction | undefined {
+  const speaker = node.childForFieldName("speaker");
+  const text = node.childForFieldName("text");
+  if (!speaker || !text) {
+    return undefined;
+  }
+  return {
+    type: "say",
+    speaker: speaker.text.trim(),
+    text: unquote(text.text),
+    range: toRange(node),
+  };
+}
+
+function parseStageAction(node: SyntaxNode): StageAction | undefined {
+  const direction = node.childForFieldName("direction");
+  if (!direction) {
+    return undefined;
+  }
+  return {
+    type: "stage",
+    text: unquote(direction.text),
+    range: toRange(node),
+  };
+}
+
+function parseSetAction(node: SyntaxNode, source: string): SetAction | undefined {
+  const state = node.childForFieldName("state");
+  const value = node.childForFieldName("value");
+  if (!state || !value) {
+    return undefined;
+  }
+  return {
+    type: "set",
+    state: state.text.trim(),
+    value: expressionText(value, source),
+    range: toRange(node),
+  };
+}
+
+function parseEmitAction(node: SyntaxNode, source: string): EmitAction | undefined {
+  const event = node.childForFieldName("event");
+  if (!event) {
+    return undefined;
+  }
+  const payload = node.childForFieldName("payload");
+  return {
+    type: "emit",
+    event: event.text.trim(),
+    payload: payload ? expressionText(payload, source) : undefined,
+    range: toRange(node),
+  };
+}
+
+function parseGotoAction(node: SyntaxNode): GotoAction | undefined {
+  const target = node.childForFieldName("target");
+  if (!target) {
+    return undefined;
+  }
+  return {
+    type: "goto",
+    target: target.text.trim(),
+    range: toRange(node),
+  };
+}
+
+function parseAssignmentAction(node: SyntaxNode, source: string): AssignmentAction | undefined {
+  const name = node.childForFieldName("name");
+  const value = node.childForFieldName("value");
+  if (!name || !value) {
+    return undefined;
+  }
+  return {
+    type: "assignment",
+    name: name.text.trim(),
+    value: expressionText(value, source),
+    range: toRange(node),
+  };
+}
+
+function parseAction(node: SyntaxNode, source: string): Action | undefined {
+  switch (node.type) {
+    case "say_action":
+      return parseSayAction(node);
+    case "stage_action":
+      return parseStageAction(node);
+    case "set_action":
+      return parseSetAction(node, source);
+    case "emit_action":
+      return parseEmitAction(node, source);
+    case "goto_transition":
+      return parseGotoAction(node);
+    case "end_transition":
+      return { type: "end", range: toRange(node) };
+    case "return_transition":
+      return { type: "return", range: toRange(node) };
+    case "assignment":
+      return parseAssignmentAction(node, source);
+    default:
+      return undefined;
+  }
+}
+
+function parseBlockStatements(node: SyntaxNode, source: string): {
+  actions: Action[];
+  choices: Choice[];
+} {
+  const actions: Action[] = [];
+  const choices: Choice[] = [];
+  let insideBlock = false;
+  for (const child of childNodes(node)) {
+    if (child.type === "block_start") {
+      insideBlock = true;
+      continue;
+    }
+    if (child.type === "block_end") {
+      insideBlock = false;
+      continue;
+    }
+    if (!insideBlock || !child.isNamed) {
+      continue;
+    }
+    if (child.type === "choice_block") {
+      choices.push(...parseChoiceBlock(child, source));
+      continue;
+    }
+    const action = parseAction(child, source);
+    if (action) {
+      actions.push(action);
+    }
+  }
+  return { actions, choices };
+}
+
 // Expand a choice block into individual option entries while composing inherited `when` clauses.
 function parseChoiceBlock(node: SyntaxNode, source: string): Choice[] {
   const blockCondition = findWhenClause(node);
@@ -162,13 +362,7 @@ function parseChoiceBlock(node: SyntaxNode, source: string): Choice[] {
     }
     const optionCondition = findWhenClause(child);
     const targetNode = child.childForFieldName("target");
-    const childList = childNodes(child);
-    const blockStart = childList.find((c) => c.type === "block_start");
-    const blockEnd = [...childList].reverse().find((c) => c.type === "block_end");
-    let body: string | undefined;
-    if (blockStart && blockEnd) {
-      body = extractText(source, blockStart.endIndex, blockEnd.startIndex).trim();
-    }
+    const { actions, choices: nestedChoices } = parseBlockStatements(child, source);
     const conditions = [blockCondition, optionCondition].filter(
       (condition): condition is string => Boolean(condition)
     );
@@ -180,7 +374,8 @@ function parseChoiceBlock(node: SyntaxNode, source: string): Choice[] {
       label: unquote(labelNode.text),
       target: targetNode?.text.trim(),
       when: combinedWhen || undefined,
-      body: body && body.length > 0 ? body : undefined,
+      actions,
+      choices: nestedChoices,
       range: toRange(child),
     });
   }
@@ -212,6 +407,11 @@ function buildNode(node: SyntaxNode, source: string): Node {
   const when = findWhenClause(node);
   const children: Node[] = [];
   const choices: Choice[] = [];
+  const { actions, choices: beatChoices } =
+    node.type === "beat_declaration" ? parseBlockStatements(node, source) : { actions: [], choices: [] };
+  if (beatChoices.length > 0) {
+    choices.push(...beatChoices);
+  }
 
   for (const child of namedChildNodes(node)) {
     switch (child.type) {
@@ -220,7 +420,9 @@ function buildNode(node: SyntaxNode, source: string): Node {
         children.push(buildNode(child, source));
         break;
       case "choice_block":
-        choices.push(...parseChoiceBlock(child, source));
+        if (node.type !== "beat_declaration") {
+          choices.push(...parseChoiceBlock(child, source));
+        }
         break;
       default:
         break;
@@ -232,6 +434,7 @@ function buildNode(node: SyntaxNode, source: string): Node {
     kind: toKind(node.type),
     when,
     body: blockBody(node, source),
+    actions,
     range: toRange(node),
     children,
     choices,
@@ -359,8 +562,9 @@ function collectSemanticDiagnostics(runtime: Script, root: SyntaxNode): Diagnost
       }
 
       const isSemanticNode = node.kind === "story" || node.kind === "scene" || node.kind === "beat";
-      const isEmpty = node.body.length === 0 && node.children.length === 0 && node.choices.length === 0;
-      if (isSemanticNode && isEmpty) {
+      const hasContent =
+        node.body.length > 0 || node.actions.length > 0 || node.children.length > 0 || node.choices.length > 0;
+      if (isSemanticNode && !hasContent) {
         diagnostics.push({
           code: "SKR104",
           message: `${capitalize(describeNodeKind(node.kind))}${node.id ? ` "${node.id}"` : ""} has no content.`,

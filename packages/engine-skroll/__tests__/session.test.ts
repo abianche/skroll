@@ -1,5 +1,5 @@
 import { createSession } from "../src";
-import type { Choice, Node, Script } from "@skroll/parser-skroll";
+import type { Action, Choice, Node, Script } from "@skroll/parser-skroll";
 
 type MutableNode = Node & { choices: Choice[]; children: Node[] };
 
@@ -8,11 +8,24 @@ const range = {
   end: { offset: 0, line: 1, column: 1 },
 };
 
-function createBeat(id: string, body: string, choices: Choice[] = []): MutableNode {
+function say(speaker: string, text: string): Action {
+  return { type: "say", speaker, text, range };
+}
+
+// function stage(text: string): Action {
+//   return { type: "stage", text, range };
+// }
+
+function end(): Action {
+  return { type: "end", range };
+}
+
+function createBeat(id: string, actions: Action[], choices: Choice[] = []): MutableNode {
   return {
     id,
     kind: "beat",
-    body,
+    body: "",
+    actions,
     choices,
     children: [],
     range,
@@ -24,6 +37,7 @@ function createScene(id: string, beats: MutableNode[]): MutableNode {
     id,
     kind: "scene",
     body: "",
+    actions: [],
     choices: [],
     children: beats,
     range,
@@ -35,6 +49,7 @@ function createConfig(body: string): MutableNode {
     id: "",
     kind: "config",
     body,
+    actions: [],
     choices: [],
     children: [],
     range,
@@ -42,16 +57,19 @@ function createConfig(body: string): MutableNode {
 }
 
 function createRuntime(startingScene: string): Script {
-  const finale = createBeat("finale", "The story ends.\nend");
-  const welcome = createBeat("welcome", "Welcome to Skroll.", [
-    { label: "Continue", target: "finale", when: undefined, body: undefined, range },
-  ]);
+  const finale = createBeat("finale", [say("narrator", "The story ends."), end()]);
+  const welcome = createBeat(
+    "welcome",
+    [say("narrator", "Welcome to Skroll.")],
+    [{ label: "Continue", target: "finale", when: undefined, actions: [], choices: [], range }]
+  );
   const introScene = createScene("intro", [welcome, finale]);
 
   const story: MutableNode = {
     id: "demo",
     kind: "story",
     body: "",
+    actions: [],
     choices: [],
     children: [createConfig(`starting_scene = ${startingScene}`), introScene],
     range,
@@ -86,13 +104,63 @@ describe("createSession", () => {
     const session = createSession(createRuntime("intro"));
 
     expect(() => session.choose("unknown-choice")).toThrow(
-      /Choice "unknown-choice" is not available/,
+      /Choice "unknown-choice" is not available/
     );
   });
 
   it("throws when the configured starting scene cannot be found", () => {
     expect(() => createSession(createRuntime("missing"))).toThrow(
-      /Starting scene "missing" does not exist/,
+      /Starting scene "missing" does not exist/
     );
+  });
+
+  it("executes inline choice bodies as ephemeral beats", () => {
+    const inlineChoice: Choice = {
+      label: "Explore",
+      target: undefined,
+      when: undefined,
+      actions: [say("narrator", "A hidden passage opens.")],
+      choices: [
+        { label: "Proceed", target: "finale", when: undefined, actions: [], choices: [], range },
+      ],
+      range,
+    };
+
+    const startBeat = createBeat("start", [say("guide", "Choose your path.")], [inlineChoice]);
+    const finaleBeat = createBeat("finale", [say("narrator", "All done."), end()]);
+    const scene = createScene("intro", [startBeat, finaleBeat]);
+
+    const story: MutableNode = {
+      id: "inline-demo",
+      kind: "story",
+      body: "",
+      actions: [],
+      choices: [],
+      children: [createConfig("starting_scene = intro"), scene],
+      range,
+    } as MutableNode;
+
+    const runtime: Script = {
+      type: "Script",
+      metadata: {},
+      nodes: [story],
+      range,
+    };
+
+    const session = createSession(runtime);
+
+    expect(session.getText()).toBe("Choose your path.");
+    expect(session.getChoices()).toEqual([{ id: "start::choice-0", label: "Explore" }]);
+
+    session.choose("start::choice-0");
+
+    expect(session.getText()).toBe("A hidden passage opens.");
+    expect(session.isEnded()).toBe(false);
+    expect(session.getChoices()).toEqual([{ id: "finale", label: "Proceed" }]);
+
+    session.choose("finale");
+
+    expect(session.getText()).toBe("All done.\nend");
+    expect(session.isEnded()).toBe(true);
   });
 });

@@ -8,6 +8,9 @@ const config: Config = {
   moduleNameMapper: {
     "^@skroll/parser-skroll$": "<rootDir>/../parser-skroll/src",
   },
+  transform: {
+    "^.+\\.(ts|tsx)$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.test.json" }],
+  },
 };
 
 export default config;

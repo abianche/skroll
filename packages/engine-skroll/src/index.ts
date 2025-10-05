@@ -1,4 +1,4 @@
-import type { Choice, Node, Script } from "@skroll/parser-skroll";
+import type { Action, Choice, Node, Script } from "@skroll/parser-skroll";
 
 export type SessionChoice = {
   /** Identifier that must be passed to {@link Session.choose}. */
@@ -112,8 +112,38 @@ function collectBeats(nodes: Node[], beats: Map<string, BeatNode>): void {
 }
 
 // Detect if a beat body issues an `end` directive, signalling a terminal state.
-function hasEndStatement(body: string): boolean {
-  return /(^|\s)end\b/.test(body);
+function hasEndAction(actions: Action[]): boolean {
+  return actions.some((action) => action.type === "end");
+}
+
+function renderActionText(action: Action): string {
+  switch (action.type) {
+    case "say":
+      return action.text;
+    case "stage":
+      return action.text;
+    case "set":
+      return `set ${action.state} = ${action.value}`;
+    case "emit":
+      return action.payload ? `emit ${action.event} with ${action.payload}` : `emit ${action.event}`;
+    case "goto":
+      return `goto ${action.target}`;
+    case "end":
+      return "end";
+    case "return":
+      return "return";
+    case "assignment":
+      return `${action.name} = ${action.value}`;
+    default:
+      return "";
+  }
+}
+
+function formatActionText(actions: Action[]): string {
+  return actions
+    .map(renderActionText)
+    .filter((line) => line.trim().length > 0)
+    .join("\n");
 }
 
 // Use explicit targets when provided, otherwise fall back to deterministic names.
@@ -133,12 +163,6 @@ function buildChoiceMap(beat: BeatNode): Map<string, Choice> {
     map.set(id, choice);
   });
   return map;
-}
-
-// Preserve author formatting while guarding against stray whitespace.
-function formatBodyText(body: string): string {
-  const trimmed = body.trim();
-  return trimmed.length > 0 ? trimmed : "";
 }
 
 // Build an interactive session that can advance through beats using player choices.
@@ -178,11 +202,11 @@ export function createSession(runtime: Script): Session {
 
   let currentBeat: BeatNode = initialBeat;
   // Mark the initial state as ended when the beat signals so or lacks choices.
-  let ended = hasEndStatement(currentBeat.body) || currentBeat.choices.length === 0;
+  let ended = hasEndAction(currentBeat.actions) || currentBeat.choices.length === 0;
 
   return {
     getText(): string {
-      return formatBodyText(currentBeat.body);
+      return formatActionText(currentBeat.actions);
     },
     getChoices(): SessionChoice[] {
       if (ended) {
@@ -212,9 +236,26 @@ export function createSession(runtime: Script): Session {
 
       const targetId = sanitizeIdentifier(choice.target);
       if (!targetId) {
-        throw new Error(
-          `Choice "${choice.label}" from beat "${currentBeat.id}" does not specify a target beat.`
-        );
+        if (choice.actions.length === 0 && choice.choices.length === 0) {
+          throw new Error(
+            `Choice "${choice.label}" from beat "${currentBeat.id}" does not specify a target beat.`,
+          );
+        }
+
+        const inlineBeat: BeatNode = {
+          id: `${currentBeat.id}::inline-${choiceId}`,
+          kind: "beat",
+          body: "",
+          when: choice.when,
+          actions: choice.actions,
+          choices: choice.choices,
+          children: [],
+          range: choice.range,
+        } as BeatNode;
+
+        currentBeat = inlineBeat;
+        ended = hasEndAction(currentBeat.actions) || currentBeat.choices.length === 0;
+        return;
       }
 
       const nextBeat = beats.get(targetId);
@@ -225,7 +266,7 @@ export function createSession(runtime: Script): Session {
       }
 
       currentBeat = nextBeat;
-      ended = hasEndStatement(currentBeat.body) || currentBeat.choices.length === 0;
+      ended = hasEndAction(currentBeat.actions) || currentBeat.choices.length === 0;
     },
     isEnded(): boolean {
       return ended;

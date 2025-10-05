@@ -37,20 +37,29 @@ describe("parse", () => {
     ]);
 
     const [arrival, browse] = marketplace?.children ?? [];
-    expect(arrival?.body).toContain("You arrive at the bustling market");
+    expect(arrival?.actions.map((action) => action.type)).toEqual(["say", "stage"]);
+    expect(arrival?.actions[0]).toMatchObject({
+      type: "say",
+      speaker: "narrator",
+      text: "You arrive at the bustling market.",
+    });
     expect(arrival?.choices).toHaveLength(2);
     expect(arrival?.choices[0]).toMatchObject({
       label: "Browse the stalls",
       target: "browse",
       when: undefined,
+      actions: [],
+      choices: [],
     });
     expect(arrival?.choices[1]).toMatchObject({
       label: "Meet a friend",
       target: "meet_friend",
       when: "hasInvitation",
+      actions: [],
+      choices: [],
     });
 
-    expect(browse?.body).toContain("emit analytics_event");
+    expect(browse?.actions.map((action) => action.type)).toEqual(["say", "emit", "end"]);
   });
 
   it("reports SKR103 diagnostics when transitions target unknown nodes", async () => {
@@ -71,5 +80,40 @@ describe("parse", () => {
         }),
       ]),
     );
+  });
+
+  it("parses inline choice bodies into structured actions", async () => {
+    const source = `story inline:
+  scene start:
+    beat root:
+      choice:
+        option "Inspect" when hasClue:
+          say narrator "A hidden compartment slides open."
+          choice:
+            option "Take item" goto finale
+    beat finale:
+      end
+`;
+
+    const { runtime } = await parse(source);
+
+    const [story] = runtime.nodes;
+    const [scene] = story?.children ?? [];
+    const [rootBeat] = scene?.children ?? [];
+
+    expect(rootBeat?.choices[0]).toMatchObject({
+      label: "Inspect",
+      when: "hasClue",
+    });
+    expect(rootBeat?.choices[0].actions).toEqual([
+      expect.objectContaining({
+        type: "say",
+        speaker: "narrator",
+        text: "A hidden compartment slides open.",
+      }),
+    ]);
+    expect(rootBeat?.choices[0].choices).toEqual([
+      expect.objectContaining({ label: "Take item", target: "finale" }),
+    ]);
   });
 });
