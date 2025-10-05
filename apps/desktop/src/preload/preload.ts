@@ -1,7 +1,5 @@
 // apps/desktop/src/preload.ts
 import { contextBridge, ipcRenderer } from "electron";
-import { parse } from "@skroll/parser-skroll";
-
 import {
   Channels,
   type SkrollApi,
@@ -10,12 +8,9 @@ import {
   type DslCompileTextRes,
 } from "@skroll/ipc-contracts";
 
-// compileText runs in preload (renderer context) to avoid loading WASM in main
 const dslApi: SkrollDslApi = {
-  compileText: async (text): Promise<DslCompileTextRes> => {
-    const result = await parse(text);
-    return { result };
-  },
+  compileText: (text): Promise<DslCompileTextRes> =>
+    ipcRenderer.invoke(Channels.DslCompileText, { text }),
 
   // keep file I/O via main
   openFile: (path) => ipcRenderer.invoke(Channels.DslOpenFile, { path }),

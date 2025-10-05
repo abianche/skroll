@@ -4,6 +4,8 @@ import path from "node:path";
 import { app, BrowserWindow, ipcMain } from "electron";
 
 import type {
+  DslCompileTextReq,
+  DslCompileTextRes,
   AppRecentRes,
   DslOpenFileReq,
   DslOpenFileRes,
@@ -12,6 +14,7 @@ import type {
 } from "@skroll/ipc-contracts";
 import { Channels } from "@skroll/ipc-contracts";
 import { addRecent, listRecent } from "@skroll/storage";
+import { parse } from "@skroll/parser-skroll";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -72,6 +75,22 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+ipcMain.handle(
+  Channels.DslCompileText,
+  async (_event, request: DslCompileTextReq): Promise<DslCompileTextRes> => {
+    try {
+      const result = await parse(request.text);
+      return { result };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error(String(error));
+    }
+  }
+);
 
 ipcMain.handle(
   Channels.DslOpenFile,
