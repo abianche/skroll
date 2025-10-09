@@ -39,6 +39,15 @@ export default [
     },
   },
   {
+    files: ["apps/desktop/src/shared/parser-skroll/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        NodeJS: "readonly",
+      },
+    },
+  },
+  {
     plugins: { jest },
     rules: {
       ...jest.configs.recommended.rules,
@@ -75,7 +84,7 @@ export default [
     },
   },
   {
-    files: ["packages/storage/src/**/*.ts"],
+    files: ["apps/desktop/src/shared/storage/**/*.ts"],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -84,7 +93,7 @@ export default [
     },
   },
   {
-    files: ["packages/tree-sitter-skroll/src/**/*.ts"],
+    files: ["apps/desktop/src/shared/tree-sitter-skroll/**/*.ts"],
     languageOptions: {
       globals: {
         ...globals.node,

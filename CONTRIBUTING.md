@@ -29,10 +29,11 @@ apps/desktop/            # Electron Forge workspace (main, preload, renderer)
   src/main/              # Main process entrypoints
   src/preload/           # Preload scripts (typed IPC surface)
   src/renderer/          # React + Mantine UI
-packages/storage/        # Persistence helpers and abstractions
-packages/ipc-contracts/  # Shared IPC contracts between main and renderer
-packages/parser-skroll/  # DSL parser built on Tree-sitter
-packages/engine-skroll/  # Experimental DSL runtime helpers
+  src/shared/engine-skroll/       # Experimental DSL runtime helpers
+  src/shared/ipc-contracts/       # Shared IPC contracts between main and renderer
+  src/shared/parser-skroll/       # DSL parser built on Tree-sitter
+  src/shared/storage/             # Persistence helpers and abstractions
+  src/shared/tree-sitter-skroll/  # Tree-sitter grammar + WASM build output
 ```
 
 ---

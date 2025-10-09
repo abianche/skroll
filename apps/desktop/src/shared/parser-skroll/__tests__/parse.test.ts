@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { parse } from "../src";
+import { parse } from "..";
 
 describe("parse", () => {
   it("parses the sample script without diagnostics", async () => {

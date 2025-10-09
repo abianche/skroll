@@ -12,11 +12,11 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "@skroll/ipc-contracts": ["packages/ipc-contracts/src"],
-      "@skroll/storage": ["packages/storage/src"],
-      "@skroll/tree-sitter-skroll": ["packages/tree-sitter-skroll/src"],
-      "@skroll/parser-skroll": ["packages/parser-skroll/src"],
-      "@skroll/engine-skroll": ["packages/engine-skroll/src"]
+      "@skroll/ipc-contracts": ["apps/desktop/src/shared/ipc-contracts"],
+      "@skroll/storage": ["apps/desktop/src/shared/storage"],
+      "@skroll/tree-sitter-skroll": ["apps/desktop/src/shared/tree-sitter-skroll"],
+      "@skroll/parser-skroll": ["apps/desktop/src/shared/parser-skroll"],
+      "@skroll/engine-skroll": ["apps/desktop/src/shared/engine-skroll"]
     }
   }
 }

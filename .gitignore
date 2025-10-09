@@ -7,7 +7,6 @@ apps/desktop/.webpack/
 dist/
 apps/desktop/dist/
 apps/desktop/out/
-packages/*/dist/
 
 # Test artifacts
 coverage/
@@ -24,9 +23,9 @@ pnpm-debug.log*
 
 # Generated files
 apps/desktop/story.skroll.json
-packages/tree-sitter-skroll/build
-packages/tree-sitter-skroll/skroll.*
-packages/tree-sitter-skroll/tree-sitter-skroll.wasm
+apps/desktop/src/shared/tree-sitter-skroll/build
+apps/desktop/src/shared/tree-sitter-skroll/skroll.*
+apps/desktop/src/shared/tree-sitter-skroll/tree-sitter-skroll.wasm
 *.obj
 *.lib
 *.exp

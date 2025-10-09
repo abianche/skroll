@@ -9,16 +9,19 @@
     "baseUrl": ".",
     "paths": {
       "@skroll/ipc-contracts": [
-        "../../packages/ipc-contracts/src"
+        "src/shared/ipc-contracts"
       ],
       "@skroll/engine-skroll": [
-        "../../packages/engine-skroll/src"
+        "src/shared/engine-skroll"
       ],
       "@skroll/storage": [
-        "../../packages/storage/src"
+        "src/shared/storage"
       ],
       "@skroll/parser-skroll": [
-        "../../packages/parser-skroll/src"
+        "src/shared/parser-skroll"
+      ],
+      "@skroll/tree-sitter-skroll": [
+        "src/shared/tree-sitter-skroll"
       ]
     }
   },
@@ -26,19 +29,6 @@
     "src/**/*.ts",
     "src/**/*.tsx"
   ],
-  "references": [
-    {
-      "path": "../../packages/ipc-contracts"
-    },
-    {
-      "path": "../../packages/engine-skroll"
-    },
-    {
-      "path": "../../packages/storage"
-    },
-    {
-      "path": "../../packages/parser-skroll"
-    }
-  ]
+  "references": []
 }
 

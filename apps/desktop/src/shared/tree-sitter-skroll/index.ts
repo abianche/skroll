@@ -1,6 +1,6 @@
 import { Node as SyntaxNode, Parser, Language } from "web-tree-sitter";
 import coreWasmUrl from "web-tree-sitter/tree-sitter.wasm";
-import langWasmUrl from "../tree-sitter-skroll.wasm";
+import langWasmUrl from "./tree-sitter-skroll.wasm";
 
 let languagePromise: Promise<Language> | null = null;
 

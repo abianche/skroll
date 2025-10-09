@@ -5,8 +5,7 @@
   "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a",
   "type": "module",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
     "clean": "pnpm -r --if-present clean",
@@ -17,15 +16,14 @@
     "package:desktop": "pnpm --filter @skroll/desktop package",
     "make:desktop": "pnpm --filter @skroll/desktop make",
     "test": "pnpm ts:build-wasm && pnpm -r --if-present test",
-    "ts:gen": "pnpm --filter @skroll/tree-sitter-skroll gen",
-    "ts:build-wasm": "pnpm --filter @skroll/tree-sitter-skroll build:wasm",
-    "ts:build-all": "pnpm ts:build-wasm",
+    "ts:gen": "node scripts/run-tree-sitter.mjs generate",
+    "ts:build-wasm": "pnpm ts:gen && node scripts/run-tree-sitter.mjs build --wasm --output ./tree-sitter-skroll.wasm",
     "ts:dump-languages": "pnpm exec tree-sitter dump-languages --config-path ./tree-sitter.config.json",
     "ts:parse": "pnpm exec tree-sitter parse --config-path ./tree-sitter.config.json",
-    "ts:parse:sample": "pnpm exec tree-sitter parse packages/tree-sitter-skroll/sample.skr --config-path ./tree-sitter.config.json",
+    "ts:parse:sample": "pnpm exec tree-sitter parse apps/desktop/src/shared/tree-sitter-skroll/sample.skr --config-path ./tree-sitter.config.json",
     "ts:highlight": "pnpm exec tree-sitter highlight --config-path ./tree-sitter.config.json",
-    "ts:highlight:sample": "pnpm exec tree-sitter highlight packages/tree-sitter-skroll/sample.skr --config-path ./tree-sitter.config.json",
-    "ts:playground": "pnpm exec tree-sitter playground --grammar-path packages/tree-sitter-skroll",
+    "ts:highlight:sample": "pnpm exec tree-sitter highlight apps/desktop/src/shared/tree-sitter-skroll/sample.skr --config-path ./tree-sitter.config.json",
+    "ts:playground": "pnpm exec tree-sitter playground --grammar-path apps/desktop/src/shared/tree-sitter-skroll",
     "act": "act"
   },
   "devDependencies": {
@@ -41,6 +39,7 @@
     "globals": "16.4.0",
     "prettier": "3.6.2",
     "rimraf": "6.0.1",
+    "tree-sitter-cli": "0.25.10",
     "typescript": "5.9.2"
   }
 }

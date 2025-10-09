@@ -1,4 +1,4 @@
-import { createSession } from "../src";
+import { createSession } from "..";
 import type { Action, Choice, Node, Script } from "@skroll/parser-skroll";
 
 type MutableNode = Node & { choices: Choice[]; children: Node[] };

@@ -3,8 +3,7 @@
 ## Dev environment tips
 - Use `pnpm install` to install dependencies.
 - The project is structured as a pnpm workspace:
-  - `apps/desktop` → Electron + React renderer app
-  - `packages/*` → Shared libraries (e.g. story engine, utilities)
+  - `apps/desktop` → Electron + React renderer app (main, preload, renderer, and shared modules)
 - Electron Forge is used for running and packaging the desktop app.
 
 ## Testing instructions

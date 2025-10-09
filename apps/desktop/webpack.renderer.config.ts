@@ -5,8 +5,8 @@ import { plugins } from "./webpack.plugins";
 import { rules } from "./webpack.rules";
 
 const alias = {
-  "@skroll/ipc-contracts": path.resolve(__dirname, "..", "..", "packages", "ipc-contracts", "src"),
-  "@skroll/storage": path.resolve(__dirname, "..", "..", "packages", "storage", "src"),
+  "@skroll/ipc-contracts": path.resolve(__dirname, "src", "shared", "ipc-contracts"),
+  "@skroll/storage": path.resolve(__dirname, "src", "shared", "storage"),
 };
 
 export const rendererConfig: Configuration = {
