@@ -1,22 +1,31 @@
-import { useNavigate } from "react-router";
-
-import { EditorView } from "../features/editor/EditorView";
-import { useEditorController } from "../features/editor/useEditorController";
+import { ScriptEditorView } from "../features/script-editor/ScriptEditorView";
+import { useScriptEditorController } from "../features/script-editor/useScriptEditorController";
 
 export function EditorPage() {
-  const navigate = useNavigate();
-  const controller = useEditorController();
-  const { startEngine } = controller;
+  const controller = useScriptEditorController();
 
   return (
-    <EditorView
-      controller={controller}
-      onPlay={async () => {
-        const success = await startEngine();
-        if (success) {
-          navigate("/player");
-        }
-      }}
+    <ScriptEditorView
+      filePath={controller.filePath}
+      text={controller.text}
+      isDirty={controller.isDirty}
+      isCompiling={controller.isCompiling}
+      diagnostics={controller.diagnostics}
+      parseError={controller.parseError}
+      preview={controller.preview}
+      previewError={controller.previewError}
+      isSaveModalOpen={controller.isSaveModalOpen}
+      pendingSavePath={controller.pendingSavePath}
+      saveError={controller.saveError}
+      isSaving={controller.isSaving}
+      onChangeText={controller.handleChangeText}
+      onRequestSave={controller.requestSave}
+      onRequestSaveAs={controller.requestSaveAs}
+      onCloseSaveModal={controller.closeSaveModal}
+      onUpdatePendingSavePath={controller.updatePendingSavePath}
+      onSubmitSave={controller.submitSave}
+      onChoose={controller.choose}
+      onResetPreview={controller.resetPreview}
     />
   );
 }

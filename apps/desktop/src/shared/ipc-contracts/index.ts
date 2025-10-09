@@ -37,29 +37,91 @@ export const DiagnosticSchema = z.object({
 
 export type Diagnostic = z.infer<typeof DiagnosticSchema>;
 
-export const DslChoiceSchema = z.object({
-  label: z.string(),
-  target: z.string().optional(),
-  when: z.string().optional(),
-  body: z.string().optional(),
-  range: SourceRangeSchema,
-});
+export const DslActionSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("say"),
+    speaker: z.string(),
+    text: z.string(),
+    range: SourceRangeSchema,
+  }),
+  z.object({
+    type: z.literal("stage"),
+    text: z.string(),
+    range: SourceRangeSchema,
+  }),
+  z.object({
+    type: z.literal("set"),
+    state: z.string(),
+    value: z.string(),
+    range: SourceRangeSchema,
+  }),
+  z.object({
+    type: z.literal("emit"),
+    event: z.string(),
+    payload: z.string().optional(),
+    range: SourceRangeSchema,
+  }),
+  z.object({
+    type: z.literal("goto"),
+    target: z.string(),
+    range: SourceRangeSchema,
+  }),
+  z.object({
+    type: z.literal("end"),
+    range: SourceRangeSchema,
+  }),
+  z.object({
+    type: z.literal("return"),
+    range: SourceRangeSchema,
+  }),
+  z.object({
+    type: z.literal("assignment"),
+    name: z.string(),
+    value: z.string(),
+    range: SourceRangeSchema,
+  }),
+]);
 
-export type DslChoice = z.infer<typeof DslChoiceSchema>;
+export type DslAction = z.infer<typeof DslActionSchema>;
+
+type DslChoiceShape = {
+  label: string;
+  target?: string;
+  when?: string;
+  actions: DslAction[];
+  choices: DslChoice[];
+  range: SourceRange;
+};
+
+export type DslChoice = DslChoiceShape;
+
+export const DslChoiceSchema: ZodType<DslChoice> = z.lazy(() =>
+  z.object({
+    label: z.string(),
+    target: z.string().optional(),
+    when: z.string().optional(),
+    actions: z.array(DslActionSchema),
+    choices: z.array(DslChoiceSchema),
+    range: SourceRangeSchema,
+  })
+);
 
 export const DslNodeKindSchema = z.enum(["story", "scene", "beat", "choice", "config", "unknown"]);
 
 export type DslNodeKind = z.infer<typeof DslNodeKindSchema>;
 
-export type DslNode = {
+type DslNodeShape = {
   id: string;
   kind: DslNodeKind;
   when?: string;
   body: string;
+  actions: DslAction[];
   range: SourceRange;
   children: DslNode[];
   choices: DslChoice[];
 };
+
+export type DslNode = DslNodeShape;
 
 export const DslNodeSchema: ZodType<DslNode> = z.lazy(() =>
   z.object({
@@ -67,6 +129,7 @@ export const DslNodeSchema: ZodType<DslNode> = z.lazy(() =>
     kind: DslNodeKindSchema,
     when: z.string().optional(),
     body: z.string(),
+    actions: z.array(DslActionSchema),
     range: SourceRangeSchema,
     children: z.array(DslNodeSchema),
     choices: z.array(DslChoiceSchema),
@@ -117,4 +180,3 @@ declare global {
   }
 }
 
-export {};

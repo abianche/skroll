@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { createNewStory, useStoryStore } from "../../store";
-import { recentFiles as fetchRecentFiles } from "../../lib/ipc";
+import { recentFiles as fetchRecentFiles, openFile } from "../../lib/ipc";
+import { DEFAULT_SCRIPT_SOURCE } from "../../constants/defaultScript";
+import { useScriptWorkspaceStore } from "../../store";
 
 export type UseHomeControllerResult = {
   recentFiles: string[];
@@ -19,8 +20,7 @@ export type UseHomeControllerResult = {
 };
 
 export function useHomeController(): UseHomeControllerResult {
-  const loadStory = useStoryStore((state) => state.loadStory);
-  const resetEngine = useStoryStore((state) => state.resetEngine);
+  const setFile = useScriptWorkspaceStore((state) => state.setFile);
   const [recentFiles, setRecentFiles] = useState<string[]>([]);
   const [isOpenModalVisible, setOpenModalVisible] = useState(false);
   const [manualPath, setManualPathState] = useState("");
@@ -43,15 +43,21 @@ export function useHomeController(): UseHomeControllerResult {
   const openExistingStory = useCallback(
     async (targetPath: string) => {
       setIsOpening(true);
+      setOpenError(null);
       try {
-        console.warn("Opening legacy JSON stories is no longer supported", targetPath);
-        setOpenError("Opening legacy JSON stories is no longer supported.");
+        const response = await openFile(targetPath);
+        setFile({ path: response.path, text: response.text });
+        return true;
+      } catch (error) {
+        console.error("Failed to open script", error);
+        const message = error instanceof Error ? error.message : String(error);
+        setOpenError(message);
         return false;
       } finally {
         setIsOpening(false);
       }
     },
-    []
+    [setFile]
   );
 
   const submitManualPath = useCallback(async () => {
@@ -63,6 +69,7 @@ export function useHomeController(): UseHomeControllerResult {
     const success = await openExistingStory(trimmedPath);
     if (success) {
       setManualPathState(trimmedPath);
+      setOpenModalVisible(false);
     }
     return success;
   }, [manualPath, openExistingStory]);
@@ -79,9 +86,8 @@ export function useHomeController(): UseHomeControllerResult {
   }, []);
 
   const startNewStory = useCallback(() => {
-    loadStory(createNewStory());
-    resetEngine();
-  }, [loadStory, resetEngine]);
+    setFile({ path: undefined, text: DEFAULT_SCRIPT_SOURCE });
+  }, [setFile]);
 
   return {
     recentFiles,
