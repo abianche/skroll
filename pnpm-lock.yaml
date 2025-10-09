@@ -133,8 +133,8 @@ importers:
         specifier: 7.1.2
         version: 7.1.2(webpack@5.102.1)
       electron:
-        specifier: 38.2.0
-        version: 38.2.0
+        specifier: 38.2.2
+        version: 38.2.2
       fork-ts-checker-webpack-plugin:
         specifier: 9.1.0
         version: 9.1.0(typescript@5.9.2)(webpack@5.102.1)
@@ -2034,8 +2034,8 @@ packages:
     resolution: {integrity: sha512-bO3y10YikuUwUuDUQRM4KfwNkKhnpVO7IPdbsrejwN9/AABJzzTQ4GeHwyzNSrVO+tEH3/Np255a3sVZpZDjvg==}
     engines: {node: '>=8.0.0'}
 
-  electron@38.2.0:
-    resolution: {integrity: sha512-Cw5Mb+N5NxsG0Hc1qr8I65Kt5APRrbgTtEEn3zTod30UNJRnAE1xbGk/1NOaDn3ODzI/MYn6BzT9T9zreP7xWA==}
+  electron@38.2.2:
+    resolution: {integrity: sha512-OXSaVNXDlonXDjMRsFNQo1j5tzTKwKXh5/m46IjAFccBcZJZMISI+EjSI07oexIuhvKM8AZLuFuihVn4YjWWrA==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -7571,7 +7571,7 @@ snapshots:
       - supports-color
     optional: true
 
-  electron@38.2.0:
+  electron@38.2.2:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 22.18.6
