@@ -1,92 +1,72 @@
 import { create } from "zustand";
 
-export type StoryChoice = {
-  id: string;
-  text: string;
-  goto: string;
-};
+import type { Diagnostic, DslParseResult, DslScript } from "../shared/ipc-contracts";
 
-export type StoryNode = {
-  id: string;
-  text: string;
-  choices: StoryChoice[];
-};
-
-export type Story = {
-  id: string;
-  title: string;
-  start: string;
-  nodes: Record<string, StoryNode>;
-};
-
-export type EngineState = {
-  at: string;
-  history: string[];
-};
-
-export type EngineView = {
-  text: string;
-  choices: { id: string; text: string }[];
-};
-
-const templateStory: Story = {
-  id: "new",
-  title: "Untitled",
-  start: "start",
-  nodes: {
-    start: {
-      id: "start",
-      text: "Hello Skroll!",
-      choices: [
-        { id: "next", text: "Continue", goto: "end" },
-      ],
-    },
-    end: {
-      id: "end",
-      text: "The End.",
-      choices: [],
-    },
-  },
-};
-
-export const createNewStory = (): Story =>
-  JSON.parse(JSON.stringify(templateStory)) as Story;
-
-type StoryStore = {
-  story: Story;
+export type ScriptWorkspaceState = {
   filePath?: string;
-  engineState?: EngineState;
-  engineView?: EngineView;
-  loadStory: (story: Story, filePath?: string) => void;
-  updateStory: (updater: (story: Story) => Story) => void;
-  setFilePath: (filePath?: string) => void;
-  setEngine: (payload?: { state: EngineState; view: EngineView }) => void;
-  resetEngine: () => void;
+  text: string;
+  isDirty: boolean;
+  isCompiling: boolean;
+  diagnostics: Diagnostic[];
+  runtime?: DslScript;
+  parseError?: string;
+  lastCompiledAt?: number;
+  setFile(payload: { path?: string; text: string }): void;
+  updateText(text: string): void;
+  startCompile(): void;
+  completeCompile(result: DslParseResult): void;
+  failCompile(message: string): void;
+  markSaved(path: string): void;
 };
 
-export const useStoryStore = create<StoryStore>((set) => ({
-  story: createNewStory(),
-  loadStory: (story, filePath) =>
+const DEFAULT_SCRIPT = "";
+
+export const useScriptWorkspaceStore = create<ScriptWorkspaceState>((set) => ({
+  filePath: undefined,
+  text: DEFAULT_SCRIPT,
+  isDirty: false,
+  isCompiling: false,
+  diagnostics: [],
+  runtime: undefined,
+  parseError: undefined,
+  lastCompiledAt: undefined,
+  setFile: ({ path, text }) =>
     set({
-      story,
-      filePath,
-      engineState: undefined,
-      engineView: undefined,
+      filePath: path,
+      text,
+      isDirty: false,
+      diagnostics: [],
+      runtime: undefined,
+      parseError: undefined,
+      lastCompiledAt: undefined,
     }),
-  updateStory: (updater) =>
-    set((state) => {
-      const next = updater(state.story);
-      return {
-        story: next,
-        engineState: undefined,
-        engineView: undefined,
-      };
-    }),
-  setFilePath: (filePath) => set({ filePath }),
-  setEngine: (payload) =>
+  updateText: (text) =>
     set({
-      engineState: payload?.state,
-      engineView: payload?.view,
+      text,
+      isDirty: true,
     }),
-  resetEngine: () => set({ engineState: undefined, engineView: undefined }),
+  startCompile: () =>
+    set((state) => ({
+      isCompiling: true,
+      parseError: undefined,
+      lastCompiledAt: state.lastCompiledAt,
+    })),
+  completeCompile: (result) =>
+    set({
+      isCompiling: false,
+      diagnostics: result.diagnostics,
+      runtime: result.runtime,
+      parseError: undefined,
+      lastCompiledAt: Date.now(),
+    }),
+  failCompile: (message) =>
+    set({
+      isCompiling: false,
+      parseError: message,
+    }),
+  markSaved: (path) =>
+    set({
+      filePath: path,
+      isDirty: false,
+    }),
 }));
