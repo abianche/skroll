@@ -31,5 +31,8 @@ export const rules: Required<ModuleOptions>["rules"] = [
   {
     test: /\.wasm$/,
     type: "asset/resource",
+    generator: {
+      filename: "tree-sitter/[name][ext]",
+    },
   },
 ];
