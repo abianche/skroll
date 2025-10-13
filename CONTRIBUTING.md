@@ -26,14 +26,14 @@ This boots the Electron app with hot reload for the renderer.
 ### Project Structure (high level)
 ```
 apps/desktop/            # Electron Forge workspace (main, preload, renderer)
-  src/main/              # Main process entrypoints
-  src/preload/           # Preload scripts (typed IPC surface)
-  src/renderer/          # React + Mantine UI
-  src/shared/engine-skroll/       # Experimental DSL runtime helpers
-  src/shared/ipc-contracts/       # Shared IPC contracts between main and renderer
-  src/shared/parser-skroll/       # DSL parser built on Tree-sitter
-  src/shared/storage/             # Persistence helpers and abstractions
-  src/shared/tree-sitter-skroll/  # Tree-sitter grammar + WASM build output
+  src/main/              # Main process (modular: window/, ipc/, utils/)
+  src/preload/           # Preload scripts (context bridge + api wiring)
+  src/renderer/          # React
+  src/shared/engine-skroll/       # DSL runtime helpers (index/session/types)
+  src/shared/ipc-contracts/       # IPC contracts per channel (+ types, Channels)
+  src/shared/parser-skroll/       # Tree-sitter parser (parse/types)
+  src/shared/storage/             # Persistence (app-data/json/recent)
+  src/shared/tree-sitter-skroll/  # Grammar + WASM loader (env/loader)
 ```
 
 ---
@@ -52,7 +52,7 @@ apps/desktop/            # Electron Forge workspace (main, preload, renderer)
 pnpm lint           # Workspace lint (ESLint + Prettier rules)
 pnpm typecheck      # TypeScript project references
 pnpm test           # Package-level unit tests (Jest)
-pnpm build          # Ensure the bundles compiles
+pnpm build          # Ensure bundles compile (tsc/build)
 ```
 Run targeted scripts (e.g., `pnpm --filter @skroll/desktop lint`) when working inside a single workspace.
 
@@ -63,6 +63,10 @@ Run targeted scripts (e.g., `pnpm --filter @skroll/desktop lint`) when working i
   ```
   feat(engine): add support for conditional choice guards
   ```
+ - For broad refactors that reshape modules without API changes, prefer:
+   ```
+   refactor: modularize <area> (no API changes)
+   ```
 
 ### 4) Pull Request Guidelines
 - Target branch: `main`.
