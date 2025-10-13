@@ -1,5 +1,6 @@
-import { Anchor, Container, Divider, Group, Title } from "@mantine/core";
 import { NavLink, Route, Routes } from "react-router";
+import { Container } from "./components/ui/container";
+import { Separator } from "./components/ui/separator";
 
 import { EditorPage } from "./pages/Editor";
 import { HomePage } from "./pages/Home";
@@ -12,24 +13,23 @@ const navLinks = [
 export default function App() {
   return (
     <Container size="lg" py="xl">
-      <Group justify="space-between" align="center" mb="md">
-        <Title order={1}>Skroll</Title>
-        <Group gap="md">
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Skroll</h1>
+        <nav className="flex gap-4">
           {navLinks.map((link) => (
-            <Anchor
+            <NavLink
               key={link.to}
-              component={NavLink}
               to={link.to}
-              // style={({ isActive }) => ({
-              //   fontWeight: isActive ? 700 : 500,
-              // })}
+              className={({ isActive }) =>
+                `text-sm font-medium ${isActive ? "text-zinc-900" : "text-zinc-600 hover:text-zinc-900"}`
+              }
             >
               {link.label}
-            </Anchor>
+            </NavLink>
           ))}
-        </Group>
-      </Group>
-      <Divider mb="xl" />
+        </nav>
+      </div>
+      <Separator className="mb-6" />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/editor" element={<EditorPage />} />
