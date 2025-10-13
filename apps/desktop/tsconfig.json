@@ -8,27 +8,15 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@skroll/ipc-contracts": [
-        "src/shared/ipc-contracts"
-      ],
-      "@skroll/engine-skroll": [
-        "src/shared/engine-skroll"
-      ],
-      "@skroll/storage": [
-        "src/shared/storage"
-      ],
-      "@skroll/parser-skroll": [
-        "src/shared/parser-skroll"
-      ],
-      "@skroll/tree-sitter-skroll": [
-        "src/shared/tree-sitter-skroll"
-      ]
+      "src/*": ["src/*"],
+      "src/lib/*": ["src/renderer/lib/*"],
+      "@skroll/ipc-contracts": ["src/shared/ipc-contracts"],
+      "@skroll/engine-skroll": ["src/shared/engine-skroll"],
+      "@skroll/storage": ["src/shared/storage"],
+      "@skroll/parser-skroll": ["src/shared/parser-skroll"],
+      "@skroll/tree-sitter-skroll": ["src/shared/tree-sitter-skroll"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": []
 }
-

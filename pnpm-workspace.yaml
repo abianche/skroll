@@ -2,6 +2,7 @@ packages:
   - apps/*
 
 onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
   - electron
   - electron-winstaller
   - tree-sitter-cli

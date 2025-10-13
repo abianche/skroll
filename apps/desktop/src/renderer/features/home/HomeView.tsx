@@ -1,4 +1,7 @@
-import { Button, Group, List, Modal, Stack, Text, TextInput, Title } from "@mantine/core";
+import { Button } from "../../components/ui/button";
+import { Dialog, DialogContent } from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 
 export type HomeViewProps = {
   recentFiles: string[];
@@ -29,71 +32,77 @@ export function HomeView({
 }: HomeViewProps) {
   return (
     <>
-      <Modal opened={isOpenModalVisible} onClose={onHideOpenModal} title="Open Story" centered>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            void onSubmitOpen();
-          }}
-        >
-          <Stack gap="sm">
-            <TextInput
-              label="File Path"
-              placeholder="path/to/story.skr"
-              value={manualPath}
-              onChange={(event) => onManualPathChange(event.currentTarget.value)}
-              autoFocus
-            />
-            {openError ? (
-              <Text c="red" size="sm">
-                {openError}
-              </Text>
-            ) : null}
-            <Group justify="flex-end">
-              <Button variant="default" type="button" onClick={onHideOpenModal}>
-                Cancel
-              </Button>
-              <Button type="submit" loading={isOpening}>
-                Open
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Modal>
+      <Dialog
+        open={isOpenModalVisible}
+        onOpenChange={(open) => (!open ? onHideOpenModal() : undefined)}
+      >
+        <DialogContent>
+          <h3 className="mb-2 text-lg font-semibold">Open Story</h3>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onSubmitOpen();
+            }}
+          >
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label htmlFor="open-path">File Path</Label>
+                <Input
+                  id="open-path"
+                  placeholder="path/to/story.skr"
+                  value={manualPath}
+                  onChange={(event) => onManualPathChange(event.currentTarget.value)}
+                  autoFocus
+                />
+              </div>
+              {openError ? <p className="text-sm text-destructive">{openError}</p> : null}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="secondary" onClick={onHideOpenModal}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isOpening}>
+                  {isOpening ? "Opening…" : "Open"}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-      <Stack gap="lg">
-        <Title order={2}>Welcome to Skroll</Title>
-        <Text c="dimmed">
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold">Welcome to Skroll</h2>
+        <p className="text-muted-foreground">
           Start a new branching story or open an existing project to continue editing and playing.
-        </Text>
-        <Group>
+        </p>
+        <div className="flex gap-2">
           <Button onClick={onNewStory}>New Story</Button>
-          <Button variant="default" onClick={onShowOpenModal}>
+          <Button variant="secondary" onClick={onShowOpenModal}>
             Open Story…
           </Button>
-        </Group>
-        <Stack gap="sm">
-          <Title order={3}>Recent Files</Title>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium">Recent Files</h3>
           {recentFiles.length === 0 ? (
-            <Text c="dimmed">No recent files yet. Create or open a story to see it here.</Text>
+            <p className="text-muted-foreground">
+              No recent files yet. Create or open a story to see it here.
+            </p>
           ) : (
-            <List spacing="sm">
+            <ul className="list-disc space-y-1 pl-5">
               {recentFiles.map((file) => (
-                <List.Item key={file}>
+                <li key={file}>
                   <Button
-                    variant="subtle"
-                    onClick={() => {
-                      void onOpenRecent(file);
-                    }}
+                    variant="ghost"
+                    className="px-0 text-left hover:underline"
+                    onClick={() => void onOpenRecent(file)}
                   >
                     {file}
                   </Button>
-                </List.Item>
+                </li>
               ))}
-            </List>
+            </ul>
           )}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
     </>
   );
 }

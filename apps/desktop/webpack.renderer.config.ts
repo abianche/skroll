@@ -5,6 +5,8 @@ import { plugins } from "./webpack.plugins";
 import { rules } from "./webpack.rules";
 
 const alias = {
+  src: path.resolve(__dirname, "src"),
+  "src/lib": path.resolve(__dirname, "src", "renderer", "lib"),
   "@skroll/ipc-contracts": path.resolve(__dirname, "src", "shared", "ipc-contracts"),
   "@skroll/storage": path.resolve(__dirname, "src", "shared", "storage"),
   "@skroll/engine-skroll": path.resolve(__dirname, "src", "shared", "engine-skroll"),
@@ -26,7 +28,7 @@ export const rendererConfig: Configuration = {
       ...rules,
       {
         test: /\.css$/,
-        use: [{ loader: "style-loader" }, { loader: "css-loader" }],
+        use: [{ loader: "style-loader" }, { loader: "css-loader" }, { loader: "postcss-loader" }],
       },
       { test: /\.wasm$/, type: "asset/resource" },
     ],

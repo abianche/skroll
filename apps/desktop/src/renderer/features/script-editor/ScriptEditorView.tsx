@@ -1,16 +1,9 @@
-import {
-  Alert,
-  Badge,
-  Button,
-  Group,
-  Modal,
-  Paper,
-  ScrollArea,
-  Stack,
-  Text,
-  Textarea,
-  Title,
-} from "@mantine/core";
+import { Alert } from "../../components/ui/alert";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Dialog, DialogContent } from "../../components/ui/dialog";
+import { ScrollArea } from "../../components/ui/scroll-area";
+import { Textarea } from "../../components/ui/textarea";
 
 import type { Diagnostic } from "@skroll/ipc-contracts";
 import type { SessionChoice } from "@skroll/engine-skroll";
@@ -52,13 +45,34 @@ function formatLocation(diagnostic: Diagnostic): string {
 function severityColor(severity: Diagnostic["severity"]): string {
   switch (severity) {
     case "error":
-      return "red";
+      return "destructive";
     case "warning":
-      return "yellow";
+      return "secondary";
     case "info":
     default:
-      return "blue";
+      return "secondary";
   }
+}
+
+function DiagnosticsList({ diagnostics }: { diagnostics: Diagnostic[] }) {
+  if (diagnostics.length === 0) return <p className="text-zinc-600">No diagnostics reported.</p>;
+  return (
+    <div className="space-y-2">
+      {diagnostics.map((diagnostic) => (
+        <div
+          key={`${diagnostic.code}-${diagnostic.range.start.offset}`}
+          className="rounded-md border border-zinc-200 p-3"
+        >
+          <div className="flex items-start justify-between">
+            <Badge variant={severityColor(diagnostic.severity) as any}>{diagnostic.severity}</Badge>
+            <span className="text-sm text-zinc-600">{formatLocation(diagnostic)}</span>
+          </div>
+          <div className="mt-1 text-sm font-medium">{diagnostic.code}</div>
+          <div className="text-sm">{diagnostic.message}</div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function ScriptEditorView({
@@ -83,152 +97,142 @@ export function ScriptEditorView({
   onChoose,
   onResetPreview,
 }: ScriptEditorViewProps) {
-  const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === "error");
+  const hasErrors = diagnostics.some((d) => d.severity === "error");
 
   return (
     <>
-      <Modal opened={isSaveModalOpen} onClose={onCloseSaveModal} title="Save Script" centered>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            void onSubmitSave();
-          }}
-        >
-          <Stack gap="sm">
-            <Textarea
-              label="File Path"
-              description="Enter the destination for this .skr file."
-              minRows={2}
-              value={pendingSavePath}
-              onChange={(event) => onUpdatePendingSavePath(event.currentTarget.value)}
-              autosize
-            />
-            {saveError ? (
-              <Alert color="red" variant="light">
-                {saveError}
-              </Alert>
-            ) : null}
-            <Group justify="flex-end">
-              <Button variant="default" type="button" onClick={onCloseSaveModal}>
-                Cancel
-              </Button>
-              <Button type="submit" loading={isSaving}>
-                Save
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Modal>
+      <Dialog
+        open={isSaveModalOpen}
+        onOpenChange={(open) => (!open ? onCloseSaveModal() : undefined)}
+      >
+        <DialogContent>
+          <h3 className="mb-2 text-lg font-semibold">Save Script</h3>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void onSubmitSave();
+            }}
+          >
+            <div className="space-y-2">
+              <label htmlFor="save-path" className="text-sm font-medium">
+                File Path
+              </label>
+              <Textarea
+                id="save-path"
+                className="min-h-[60px]"
+                value={pendingSavePath}
+                onChange={(event) => onUpdatePendingSavePath(event.currentTarget.value)}
+              />
+              {saveError ? <Alert variant="destructive">{saveError}</Alert> : null}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="secondary" onClick={onCloseSaveModal}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? "Saving…" : "Save"}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-      <Stack gap="lg">
-        <Group justify="space-between" align="flex-start">
-          <Stack gap={4}>
-            <Title order={2}>Script Editor</Title>
-            <Group gap="xs" align="center">
-              <Text c="dimmed" size="sm">
-                {filePath ?? "Unsaved script"}
-              </Text>
-              {isDirty ? <Badge color="yellow">Unsaved changes</Badge> : null}
-            </Group>
-          </Stack>
-          <Group gap="sm">
-            <Button variant="default" onClick={onRequestSave}>
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Script Editor</h2>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{filePath ?? "Unsaved script"}</span>
+              {isDirty ? <Badge variant="secondary">Unsaved changes</Badge> : null}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={onRequestSave}>
               Save
             </Button>
-            <Button variant="light" onClick={onRequestSaveAs}>
+            <Button variant="outline" onClick={onRequestSaveAs}>
               Save As…
             </Button>
-          </Group>
-        </Group>
+          </div>
+        </div>
 
-        {parseError ? (
-          <Alert color="red" title="Failed to compile" variant="light">
-            {parseError}
-          </Alert>
-        ) : null}
+        {parseError ? <Alert variant="destructive">Failed to compile: {parseError}</Alert> : null}
 
-        <Textarea
-          label="Script"
-          autosize
-          minRows={20}
-          value={text}
-          spellCheck={false}
-          onChange={(event) => onChangeText(event.currentTarget.value)}
-        />
+        <div className="space-y-1">
+          <label htmlFor="script-text" className="text-sm font-medium">
+            Script
+          </label>
+          <Textarea
+            id="script-text"
+            className="min-h-[320px]"
+            value={text}
+            spellCheck={false}
+            onChange={(event) => onChangeText(event.currentTarget.value)}
+          />
+        </div>
 
-        {isCompiling ? (
-          <Text c="dimmed" size="sm">
-            Compiling…
-          </Text>
-        ) : null}
+        {isCompiling ? <p className="text-sm text-muted-foreground">Compiling…</p> : null}
 
-        <Stack gap="sm">
-          <Group justify="space-between" align="center">
-            <Title order={3}>Diagnostics</Title>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium">Diagnostics</h3>
             {hasErrors ? (
-              <Badge color="red">Fix errors to enable preview</Badge>
+              <Badge variant="destructive">Fix errors to enable preview</Badge>
             ) : (
-              <Badge color="green">No blocking errors</Badge>
+              <Badge variant="secondary">No blocking errors</Badge>
             )}
-          </Group>
-          {diagnostics.length === 0 ? (
-            <Text c="dimmed">No diagnostics reported.</Text>
-          ) : (
-            <Stack gap="xs">
-              {diagnostics.map((diagnostic) => (
-                <Paper key={`${diagnostic.code}-${diagnostic.range.start.offset}`} withBorder p="sm">
-                  <Group justify="space-between" align="flex-start">
-                    <Badge color={severityColor(diagnostic.severity)}>{diagnostic.severity}</Badge>
-                    <Text size="sm" c="dimmed">
-                      {formatLocation(diagnostic)}
-                    </Text>
-                  </Group>
-                  <Text fw={500}>{diagnostic.code}</Text>
-                  <Text size="sm">{diagnostic.message}</Text>
-                </Paper>
-              ))}
-            </Stack>
-          )}
-        </Stack>
+          </div>
+          <DiagnosticsList diagnostics={diagnostics} />
+        </div>
 
-        <Stack gap="sm">
-          <Group justify="space-between" align="center">
-            <Title order={3}>Live Preview</Title>
-            <Button variant="subtle" onClick={onResetPreview} disabled={!preview && !previewError}>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium">Live Preview</h3>
+            <Button variant="ghost" onClick={onResetPreview} disabled={!preview && !previewError}>
               Restart preview
             </Button>
-          </Group>
-          {previewError ? (
-            <Alert color="red" variant="light">
-              {previewError}
-            </Alert>
-          ) : null}
+          </div>
+          {previewError ? <Alert variant="destructive">{previewError}</Alert> : null}
           {preview ? (
-            <Paper withBorder p="md">
-              <Stack gap="md">
-                <ScrollArea h={160} type="auto">
-                  <Text>{preview.text || "(This beat has no dialogue yet.)"}</Text>
+            <div className="rounded-md border border-zinc-200 p-4">
+              <div className="flex flex-col gap-3">
+                <ScrollArea className="h-40">
+                  <p>{preview.text || "(This beat has no dialogue yet.)"}</p>
                 </ScrollArea>
-                <Stack gap="xs">
+                <div className="space-y-2">
                   {preview.ended ? (
-                    <Text c="dimmed">The story has ended.</Text>
-                  ) : preview.choices.length === 0 ? (
-                    <Text c="dimmed">No choices available.</Text>
+                    <p className="text-muted-foreground">The story has ended.</p>
                   ) : (
-                    preview.choices.map((choice) => (
-                      <Button key={choice.id} variant="light" onClick={() => onChoose(choice.id)}>
-                        {choice.label}
-                      </Button>
-                    ))
+                    <>
+                      {preview.choices.length === 0 ? (
+                        <p className="text-muted-foreground">No choices available.</p>
+                      ) : (
+                        preview.choices.map((choice) => (
+                          <Button
+                            key={choice.id}
+                            variant="secondary"
+                            onClick={() => onChoose(choice.id)}
+                          >
+                            {choice.label}
+                          </Button>
+                        ))
+                      )}
+                    </>
                   )}
-                </Stack>
-              </Stack>
-            </Paper>
-          ) : !previewError ? (
-            <Text c="dimmed">Preview will appear once the script compiles without errors.</Text>
-          ) : null}
-        </Stack>
-      </Stack>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {!previewError ? (
+                <p className="text-muted-foreground">
+                  Preview will appear once the script compiles without errors.
+                </p>
+              ) : null}
+            </>
+          )}
+        </div>
+      </div>
     </>
   );
 }
