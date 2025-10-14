@@ -1,5 +1,5 @@
 import { test, expect, _electron as electron } from "@playwright/test";
-import path from "node:path";
+import * as path from "node:path";
 
 test.describe("Skroll Desktop App", () => {
   test("should launch the app and show the main window", async () => {
