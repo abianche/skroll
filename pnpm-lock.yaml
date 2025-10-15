@@ -165,6 +165,9 @@ importers:
       electron:
         specifier: 38.2.2
         version: 38.2.2
+      electron-playwright-helpers:
+        specifier: ^1.8.2
+        version: 1.8.2
       fork-ts-checker-webpack-plugin:
         specifier: 9.1.0
         version: 9.1.0(typescript@5.9.3)(webpack@5.102.1)
@@ -174,9 +177,6 @@ importers:
       jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
-      playwright:
-        specifier: ^1.56.0
-        version: 1.56.0
       postcss:
         specifier: ^8.4.47
         version: 8.5.6
@@ -2303,6 +2303,9 @@ packages:
     engines: {node: '>= 10.0.0'}
     os: [darwin, linux]
     hasBin: true
+
+  electron-playwright-helpers@1.8.2:
+    resolution: {integrity: sha512-sM9fDSEFDOptKDa8oiNphiXdR1KR1uFe8yHnlrnvyQE1ScnHizca/SoYvUdtn+5IuVNTkT8MesKWJ6seS4/zuA==}
 
   electron-squirrel-startup@1.0.1:
     resolution: {integrity: sha512-sTfFIHGku+7PsHLJ7v0dRcZNkALrV+YEozINTW8X1nM//e5O3L+rfYuvSW00lmGHnYmUjARZulD8F2V8ISI9RA==}
@@ -8063,6 +8066,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
     optional: true
+
+  electron-playwright-helpers@1.8.2:
+    dependencies:
+      '@electron/asar': 3.4.1
 
   electron-squirrel-startup@1.0.1:
     dependencies:

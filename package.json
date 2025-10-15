@@ -12,7 +12,7 @@
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
     "build": "pnpm -r --if-present build",
-    "dev:desktop": "cross-env NODE_ENV=development pnpm --filter @skroll/desktop start",
+    "dev:desktop": "pnpm --filter @skroll/desktop start",
     "package:desktop": "pnpm --filter @skroll/desktop package",
     "make:desktop": "pnpm --filter @skroll/desktop make",
     "test": "pnpm ts:build-wasm && pnpm -r --if-present test",

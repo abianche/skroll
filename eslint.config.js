@@ -67,7 +67,7 @@ export default [
     },
   },
   {
-    files: ["**/e2e/**/*.ts", "**/*.spec.ts"],
+    files: ["**/e2e/**/*.spec.ts"],
     languageOptions: {
       globals: {
         ...globals.node,
