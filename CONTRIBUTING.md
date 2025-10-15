@@ -108,9 +108,19 @@ Run targeted scripts (e.g., `pnpm --filter @skroll/desktop lint`) when working i
 - `pnpm test` runs Jest suites across packages.
 - Add tests alongside new logic (especially storage flows and DSL runtime helpers).
 
+### End-to-End Tests (Playwright)
+- E2E tests are located in `apps/desktop/e2e/` and use Playwright to test the Electron app.
+- Run e2e tests with `pnpm --filter @skroll/desktop test:e2e`.
+- First-time setup requires installing Playwright browsers:
+  ```bash
+  npx playwright install chromium
+  ```
+- Write tests in `*.spec.ts` files in the `e2e/` directory.
+- Tests launch the packaged Electron app and interact with it as a user would.
+
 ### Desktop App
 - Ensure `pnpm --filter @skroll/desktop build` succeeds before opening a PR.
-- If you add Playwright or other end-to-end tests, document setup commands in your PR.
+- Run both unit tests (`pnpm test`) and e2e tests (`pnpm test:e2e`) when making changes to the desktop app.
 
 ---
 

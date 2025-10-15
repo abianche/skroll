@@ -67,6 +67,14 @@ export default [
     },
   },
   {
+    files: ["**/e2e/**/*.spec.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  {
     files: ["apps/desktop/src/main/**/*.ts"],
     languageOptions: {
       globals: {

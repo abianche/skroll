@@ -10,6 +10,9 @@ apps/desktop/out/
 
 # Test artifacts
 coverage/
+playwright-report/
+test-results/
+e2e-results/
 
 # Logs
 *.log
