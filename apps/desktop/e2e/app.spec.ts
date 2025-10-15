@@ -4,12 +4,13 @@ import { findLatestBuild, parseElectronApp } from "electron-playwright-helpers";
 let electronApp: ElectronApplication;
 
 test.beforeAll(async () => {
-  const latestBuild = findLatestBuild();
+  // Determine the correct build directory based on the current working directory to support both terminal and extension runs
+  const buildDirectory = process.cwd().endsWith("apps/desktop") ? "./out" : "./apps/desktop/out";
+  const latestBuild = findLatestBuild(buildDirectory);
   const appInfo = parseElectronApp(latestBuild);
 
   electronApp = await electron.launch({
     args: [appInfo.main, "--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu-sandbox"],
-    env: { ...process.env, PW_E2E: "true" },
   });
   electronApp.on("window", async (page) => {
     const filename = page.url()?.split("/").pop();
@@ -30,12 +31,11 @@ test.afterAll(async () => {
   await electronApp.close();
 });
 
-test.describe("Skroll Desktop App", () => {
+test.describe("Skroll", () => {
   test("should launch the app and show the main window", async ({ page }) => {
     // Wait for the first window to appear
     const window = await electronApp.firstWindow();
     expect(window).toBeTruthy();
-    window.on("console", console.log);
 
     // Take a screenshot for verification
     await window.screenshot({ path: "e2e-results/app-launch.png" });
@@ -43,19 +43,23 @@ test.describe("Skroll Desktop App", () => {
     // Verify the title contains "Skroll"
     const title = await window.title();
     expect(title).toContain("Skroll");
-
-    await page.waitForTimeout(10000);
   });
 
-  // test("should display the editor interface", async () => {
-  //   const window = await electronApp.firstWindow();
+  test("should display the home screen", async () => {
+    const window = await electronApp.firstWindow();
 
-  //   // Wait for the app to be ready
-  //   await window.waitForLoadState("domcontentloaded");
+    const homePage = window.getByText("Welcome to Skroll");
+    await expect(homePage).toBeVisible();
+  });
 
-  //   // Check that we can find some expected UI elements
-  //   // Note: Update these selectors based on actual app structure
-  //   const body = window.locator("body");
-  //   await expect(body).toBeVisible();
-  // });
+  test("should navigate to the editor page", async () => {
+    const window = await electronApp.firstWindow();
+
+    const scriptNavLink = window.locator("nav >> text=Script");
+    await scriptNavLink.click();
+
+    // Verify that the editor page is displayed
+    const editorPage = window.getByText("Script Editor");
+    await expect(editorPage).toBeVisible();
+  });
 });

@@ -3,6 +3,7 @@
     "esbenp.prettier-vscode",
     "sonarsource.sonarlint-vscode",
     "dotjoshjohnson.xml",
-    "redhat.vscode-yaml"
+    "redhat.vscode-yaml",
+    "ms-playwright.playwright"
   ]
 }
