@@ -32,13 +32,13 @@ describe("ipc helpers", () => {
       app: { recentFiles: recentFilesMock },
     };
 
-    window.skroll = skroll;
+    globalThis.skroll = skroll;
 
     helpers = await import("./ipc");
   });
 
   afterEach(() => {
-    delete window.skroll;
+    delete globalThis.skroll;
   });
 
   it("forwards compileText requests", async () => {
