@@ -33,11 +33,11 @@ function sanitizeIdentifier(value: string | undefined): string | undefined {
 function parseStartingSceneLine(line: string): string | undefined {
   const trimmed = line.trim();
   if (!trimmed.startsWith("starting_scene")) return undefined;
-  const match = trimmed.match(/starting_scene\s*=\s*(.+)$/);
+  const match = new RegExp(/starting_scene\s*=\s*(.+)$/).exec(trimmed);
   if (!match) return undefined;
   const raw = match[1]?.trim();
   if (!raw) return undefined;
-  const quoted = raw.match(/^"(.+)"$/) ?? raw.match(/^'(.+)'$/);
+  const quoted = new RegExp(/^"(.+)"$/).exec(raw) ?? new RegExp(/^'(.+)'$/).exec(raw);
   const value = quoted ? quoted[1] : raw;
   return sanitizeIdentifier(value);
 }
@@ -124,10 +124,11 @@ function createChoiceId(beatId: string, choice: Choice, index: number): string {
 // Precompute identifiers to choices for quick lookup during interaction.
 function buildChoiceMap(beat: BeatNode): Map<string, Choice> {
   const map = new Map<string, Choice>();
-  beat.choices.forEach((choice, index) => {
+  // use for..of
+  for (const [index, choice] of beat.choices.entries()) {
     const id = createChoiceId(beat.id, choice, index);
     map.set(id, choice);
-  });
+  }
   return map;
 }
 
@@ -240,4 +241,4 @@ export function createSession(runtime: Script): Session {
   };
 }
 
-export type { Script };
+export type { Script } from "@skroll/parser-skroll";
