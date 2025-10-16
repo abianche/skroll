@@ -7,11 +7,11 @@ import type {
 } from "@skroll/ipc-contracts";
 
 function resolveSkrollApi(): SkrollApi {
-  if (typeof window === "undefined" || !window.skroll) {
-    throw new Error("Skroll IPC API is not available on window.skroll");
+  if (typeof globalThis === "undefined" || !globalThis.skroll) {
+    throw new Error("Skroll IPC API is not available on globalThis.skroll");
   }
 
-  return window.skroll;
+  return globalThis.skroll;
 }
 
 const skrollApi = resolveSkrollApi();
