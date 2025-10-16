@@ -1698,7 +1698,7 @@
             "type": "REPEAT",
             "content": {
               "type": "PATTERN",
-              "value": "[A-Za-z0-9_]"
+              "value": "\\w"
             }
           }
         ]
@@ -1771,7 +1771,7 @@
                     "type": "REPEAT",
                     "content": {
                       "type": "PATTERN",
-                      "value": "[0-9]"
+                      "value": "\\d"
                     }
                   }
                 ]
@@ -1792,7 +1792,7 @@
                     "type": "REPEAT1",
                     "content": {
                       "type": "PATTERN",
-                      "value": "[0-9]"
+                      "value": "\\d"
                     }
                   }
                 ]
