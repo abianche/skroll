@@ -1,4 +1,4 @@
-![GitHub License](https://img.shields.io/github/license/abianche/skroll) 
+![GitHub License](https://img.shields.io/github/license/abianche/skroll)
 [![CI](https://github.com/abianche/skroll/actions/workflows/ci.yml/badge.svg)](https://github.com/abianche/skroll/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/abianche/skroll/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/abianche/skroll/actions/workflows/github-code-scanning/codeql)
 [![Dependabot Updates](https://github.com/abianche/skroll/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/abianche/skroll/actions/workflows/dependabot/dependabot-updates)
@@ -11,10 +11,12 @@
 ---
 
 ## ✨ Vision
+
 This project aims to provide writers and developers with a simple yet powerful editor for **interactive fiction**.  
-Think *Inklewriter* or *Twine*, designed to run **everywhere** on desktop and web.  
+Think _Inklewriter_ or _Twine_, designed to run **everywhere** on desktop and web.
 
 With this tool you can:
+
 - Write branching stories in a clean editor.
 - Visualize story flow and choices.
 - Playtest stories instantly inside the app.
@@ -30,14 +32,29 @@ We are actively building the foundation of this project, and it is not yet ready
 
 ---
 
+## 🤖 AI Assistant Support
+
+This project includes [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server configuration for Shadcn UI components. The MCP server allows AI assistants like Claude to:
+
+- Query available Shadcn UI components
+- Add components to the project
+- Access component documentation
+
+The configuration is defined in `.mcp.json` at the project root.
+
+---
+
 ## 🤝 Contributing
-Contributions are welcome!  
-- Open an issue for ideas, bugs, or feature requests.  
-- Fork and PR for code changes.  
+
+Contributions are welcome!
+
+- Open an issue for ideas, bugs, or feature requests.
+- Fork and PR for code changes.
 - See [CONTRIBUTING.md](CONTRIBUTING.md).
 - CI workflow is compatible with `act` for local runs.
 
 ---
 
 ## 📄 License
-This project is licensed under the [MIT License](LICENSE).  
+
+This project is licensed under the [MIT License](LICENSE).
