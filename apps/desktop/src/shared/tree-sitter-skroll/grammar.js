@@ -379,7 +379,7 @@ module.exports = grammar({
     _literal: ($) => choice($.string, $.number, $.boolean),
 
     // Identifiers: ASCII letters/underscore followed by alphanumerics/underscore
-    identifier: ($) => token(seq(/[A-Za-z_]/, repeat(/[A-Za-z0-9_]/))),
+    identifier: ($) => token(seq(/[A-Za-z_]/, repeat(/\w/))),
 
     // Double-quoted strings with standard escape support (\" \\ \n etc.)
     string: ($) =>
@@ -402,8 +402,8 @@ module.exports = grammar({
       token(
         seq(
           optional("-"),
-          choice("0", seq(/[1-9]/, repeat(/[0-9]/))),
-          optional(seq(".", repeat1(/[0-9]/)))
+          choice("0", seq(/[1-9]/, repeat(/\d/))),
+          optional(seq(".", repeat1(/\d/)))
         )
       ),
 

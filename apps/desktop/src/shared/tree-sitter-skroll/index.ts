@@ -1,4 +1,4 @@
-import { Node as SyntaxNode, Parser, type Language } from "web-tree-sitter";
+import { Parser, type Language } from "web-tree-sitter";
 import { loadLanguage } from "./loader";
 
 export async function createParser(): Promise<Parser> {
@@ -7,7 +7,7 @@ export async function createParser(): Promise<Parser> {
   parser.setLanguage(language);
   return parser;
 }
-export type { SyntaxNode };
+export type { Node as SyntaxNode } from "web-tree-sitter";
 
 export async function getLanguage(): Promise<Language> {
   return loadLanguage();

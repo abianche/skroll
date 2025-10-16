@@ -30,11 +30,9 @@ export function resolveAssetUrl(asset: string): string {
 }
 
 export async function loadLanguage(): Promise<Language> {
-  if (!languagePromise) {
-    languagePromise = (async () => {
-      await Parser.init({ locateFile: () => resolveAssetUrl(coreWasmUrl) });
-      return Language.load(resolveAssetUrl(langWasmUrl));
-    })();
-  }
+  languagePromise ??= (async () => {
+    await Parser.init({ locateFile: () => resolveAssetUrl(coreWasmUrl) });
+    return Language.load(resolveAssetUrl(langWasmUrl));
+  })();
   return languagePromise;
 }
