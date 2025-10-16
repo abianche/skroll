@@ -94,6 +94,13 @@ Run targeted scripts (e.g., `pnpm --filter @skroll/desktop lint`) when working i
 - Keep components small, accessible, and testable.
 - Follow shared ESLint + Prettier configuration (`pnpm lint --fix`).
 
+### React Compiler
+- The project uses the [React Compiler](https://react.dev/learn/react-compiler) to automatically optimize React components for better performance.
+- The compiler is integrated via `babel-plugin-react-compiler` in the webpack build pipeline.
+- ESLint rules via `eslint-plugin-react-compiler` help catch patterns that may not work well with the compiler.
+- No special syntax is required—write standard React code and the compiler will optimize it during the build process.
+- If you encounter compiler-related issues, check the [React Compiler documentation](https://react.dev/learn/react-compiler) for guidance.
+
 ### Electron Main/Preload
 - Keep the main process minimal—delegate work to packages when possible.
 - Maintain `contextIsolation` and use typed channels from `@skroll/ipc-contracts`.
