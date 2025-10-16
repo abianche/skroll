@@ -21,12 +21,17 @@ export const rules: Required<ModuleOptions>["rules"] = [
   {
     test: /\.tsx?$/,
     exclude: /(node_modules|\.webpack)/,
-    use: {
-      loader: "ts-loader",
-      options: {
-        transpileOnly: true,
+    use: [
+      {
+        loader: "babel-loader",
       },
-    },
+      {
+        loader: "ts-loader",
+        options: {
+          transpileOnly: true,
+        },
+      },
+    ],
   },
   {
     test: /\.wasm$/,

@@ -3,6 +3,7 @@ import tseslint from "@typescript-eslint/eslint-plugin";
 import tsparser from "@typescript-eslint/parser";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import reactCompiler from "eslint-plugin-react-compiler";
 import importPlugin from "eslint-plugin-import";
 import prettier from "eslint-config-prettier";
 import jest from "eslint-plugin-jest";
@@ -25,6 +26,7 @@ export default [
       import: importPlugin,
       react,
       "react-hooks": reactHooks,
+      "react-compiler": reactCompiler,
     },
     rules: {
       "react/react-in-jsx-scope": "off",
@@ -33,6 +35,7 @@ export default [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      "react-compiler/react-compiler": "error",
     },
     settings: {
       react: { version: "detect" },
