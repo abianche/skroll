@@ -12,8 +12,7 @@
 
 ## ✨ Vision
 
-This project aims to provide writers and developers with a simple yet powerful editor for **interactive fiction**.  
-Think _Inklewriter_ or _Twine_, designed to run on macOS, Windows, and Linux as a native desktop app.
+This project aims to provide writers and developers with a simple yet powerful editor for **interactive fiction**, designed to run on macOS, Windows, and Linux as a native desktop app.
 
 With this tool you can:
 
