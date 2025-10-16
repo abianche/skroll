@@ -5,5 +5,6 @@ onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - electron
   - electron-winstaller
+  - msw
   - tree-sitter-cli
   - unrs-resolver

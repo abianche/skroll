@@ -16,13 +16,15 @@ const alias = {
 
 export const rendererConfig: Configuration = {
   target: process.env.NODE_ENV === "development" ? "web" : "electron-renderer",
-  devtool: "cheap-module-source-map",
+  devtool: process.env.NODE_ENV === "development" ? "inline-source-map" : false,
   output: {
     // Let Webpack infer the publicPath at runtime so HtmlWebpackPlugin injects
     // script URLs that work both in dev (served from "/") and in the packaged
     // app (loaded via file/app protocols). Avoids hardcoded "/" or "./" and
     // prevents net::ERR_FILE_NOT_FOUND in packaged builds.
     publicPath: "auto",
+    // Help Electron DevTools resolve sources to actual files on disk
+    devtoolModuleFilenameTemplate: (info) => `file://${info.absoluteResourcePath}`,
   },
   module: {
     rules: [

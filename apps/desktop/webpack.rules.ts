@@ -24,11 +24,19 @@ export const rules: Required<ModuleOptions>["rules"] = [
     use: [
       {
         loader: "babel-loader",
+        options: {
+          sourceMaps: true,
+          inputSourceMap: true,
+        },
       },
       {
         loader: "ts-loader",
         options: {
           transpileOnly: true,
+          compilerOptions: {
+            sourceMap: true,
+            inlineSources: true,
+          },
         },
       },
     ],
