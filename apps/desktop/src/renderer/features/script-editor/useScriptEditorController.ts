@@ -37,7 +37,7 @@ export type UseScriptEditorControllerResult = {
   requestSaveAs: () => void;
   closeSaveModal: () => void;
   updatePendingSavePath: (value: string) => void;
-  submitSave: () => void;
+  submitSave: () => void | Promise<void>;
   choose: (choiceId: string) => void;
   resetPreview: () => void;
 };
@@ -58,7 +58,7 @@ export function useScriptEditorController(): UseScriptEditorControllerResult {
   const failCompile = useScriptWorkspaceStore((state) => state.failCompile);
   const markSaved = useScriptWorkspaceStore((state) => state.markSaved);
 
-  const [isSaveModalOpen, setSaveModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [pendingSavePath, setPendingSavePath] = useState<string>("story.skr");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,7 +74,7 @@ export function useScriptEditorController(): UseScriptEditorControllerResult {
 
   useEffect(() => {
     let cancelled = false;
-    const handle = window.setTimeout(() => {
+    const handle = globalThis.setTimeout(() => {
       startCompile();
       void (async () => {
         try {
@@ -94,7 +94,7 @@ export function useScriptEditorController(): UseScriptEditorControllerResult {
 
     return () => {
       cancelled = true;
-      window.clearTimeout(handle);
+      globalThis.clearTimeout(handle);
     };
   }, [text, startCompile, completeCompile, failCompile]);
 
@@ -141,14 +141,14 @@ export function useScriptEditorController(): UseScriptEditorControllerResult {
   }, [filePath, isSaveModalOpen]);
 
   const handleChangeText = useCallback(
-    (value: string) => {
+    (value: string): void => {
       updateText(value);
     },
     [updateText]
   );
 
-  const closeSaveModal = useCallback(() => {
-    setSaveModalOpen(false);
+  const closeSaveModal = useCallback((): void => {
+    setIsSaveModalOpen(false);
     setSaveError(null);
   }, []);
 
@@ -159,7 +159,7 @@ export function useScriptEditorController(): UseScriptEditorControllerResult {
       try {
         await saveFile(targetPath, text);
         markSaved(targetPath);
-        setSaveModalOpen(false);
+        setIsSaveModalOpen(false);
         return true;
       } catch (error) {
         console.error("Failed to save script", error);
@@ -173,21 +173,24 @@ export function useScriptEditorController(): UseScriptEditorControllerResult {
     [markSaved, text]
   );
 
-  const requestSave = useCallback(() => {
+  const requestSave = useCallback((): void => {
     if (filePath) {
-      void performSave(filePath);
+      // Fire and forget: internal API handles errors and state updates
+      performSave(filePath).catch((error) => {
+        console.error("Unexpected save failure", error);
+      });
       return;
     }
-    setSaveModalOpen(true);
+    setIsSaveModalOpen(true);
   }, [filePath, performSave]);
 
-  const requestSaveAs = useCallback(() => {
+  const requestSaveAs = useCallback((): void => {
     setPendingSavePath(filePath ?? "story.skr");
-    setSaveModalOpen(true);
+    setIsSaveModalOpen(true);
     setSaveError(null);
   }, [filePath]);
 
-  const submitSave = useCallback(async () => {
+  const submitSave = useCallback(async (): Promise<void> => {
     const trimmedPath = pendingSavePath.trim();
     if (!trimmedPath) {
       setSaveError("File path is required.");
@@ -199,30 +202,27 @@ export function useScriptEditorController(): UseScriptEditorControllerResult {
     }
   }, [pendingSavePath, performSave]);
 
-  const updatePendingSavePath = useCallback((value: string) => {
+  const updatePendingSavePath = useCallback((value: string): void => {
     setPendingSavePath(value);
   }, []);
 
-  const choose = useCallback(
-    (choiceId: string) => {
-      const session = sessionRef.current;
-      if (!session) {
-        return;
-      }
-      try {
-        session.choose(choiceId);
-        setPreview(getPreviewState(session));
-        setPreviewError(undefined);
-      } catch (error) {
-        console.error("Failed to progress preview", error);
-        const message = error instanceof Error ? error.message : String(error);
-        setPreviewError(message);
-      }
-    },
-    []
-  );
+  const choose = useCallback((choiceId: string): void => {
+    const session = sessionRef.current;
+    if (!session) {
+      return;
+    }
+    try {
+      session.choose(choiceId);
+      setPreview(getPreviewState(session));
+      setPreviewError(undefined);
+    } catch (error) {
+      console.error("Failed to progress preview", error);
+      const message = error instanceof Error ? error.message : String(error);
+      setPreviewError(message);
+    }
+  }, []);
 
-  const resetPreview = useCallback(() => {
+  const resetPreview = useCallback((): void => {
     if (!runtime || parseError || hasBlockingErrors) {
       return;
     }
