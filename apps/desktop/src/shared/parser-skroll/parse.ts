@@ -20,9 +20,7 @@ import type {
 let parserPromise: Promise<Parser> | undefined;
 
 function ensureParser(): Promise<Parser> {
-  if (!parserPromise) {
-    parserPromise = createParser();
-  }
+  parserPromise ??= createParser();
   return parserPromise;
 }
 
@@ -265,9 +263,7 @@ function parseChoiceBlock(node: SyntaxNode, source: string): Choice[] {
     const optionCondition = findWhenClause(child);
     const targetNode = child.childForFieldName("target");
     const { actions, choices: nestedChoices } = parseBlockStatements(child, source);
-    const conditions = [blockCondition, optionCondition].filter((condition): condition is string =>
-      Boolean(condition)
-    );
+    const conditions = [blockCondition, optionCondition].filter(Boolean) as string[];
     const combinedWhen =
       conditions.length > 1
         ? conditions.map((condition) => `(${condition})`).join(" and ")
@@ -428,6 +424,13 @@ function collectDiagnostics(root: SyntaxNode, source: string): Diagnostic[] {
   return diagnostics;
 }
 
+function buildParentLabel(parent?: Node): string {
+  if (!parent) return "";
+  const parentName = describeNodeKind(parent.kind);
+  const idSuffix = parent.id ? ` "${parent.id}"` : "";
+  return ` within ${parentName}${idSuffix}`;
+}
+
 // Perform semantic validation that relies on the constructed runtime graph and raw syntax tree.
 function collectSemanticDiagnostics(runtime: Script, root: SyntaxNode): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
@@ -450,13 +453,6 @@ function collectSemanticDiagnostics(runtime: Script, root: SyntaxNode): Diagnost
   const SEMANTIC_KINDS: ReadonlySet<NodeKind> = new Set(["story", "scene", "beat"]);
   const hasNodeContent = (n: Node): boolean =>
     n.body.length > 0 || n.actions.length > 0 || n.children.length > 0 || n.choices.length > 0;
-
-  function buildParentLabel(parent?: Node): string {
-    if (!parent) return "";
-    const parentName = describeNodeKind(parent.kind);
-    const idSuffix = parent.id ? ` "${parent.id}"` : "";
-    return ` within ${parentName}${idSuffix}`;
-  }
 
   function reportDuplicate(node: Node, parent?: Node): void {
     const nodeLabel = describeNodeKind(node.kind);

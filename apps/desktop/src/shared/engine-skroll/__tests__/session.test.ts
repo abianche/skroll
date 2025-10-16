@@ -12,10 +12,6 @@ function say(speaker: string, text: string): Action {
   return { type: "say", speaker, text, range };
 }
 
-// function stage(text: string): Action {
-//   return { type: "stage", text, range };
-// }
-
 function end(): Action {
   return { type: "end", range };
 }

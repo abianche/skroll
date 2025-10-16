@@ -1,10 +1,10 @@
-import type { Module } from "module";
+import type { Module } from "node:module";
 
 type WritableModule = Module & { exports: unknown };
 
 (require.extensions as NodeJS.RequireExtensions)[".wasm"] = (
   module: WritableModule,
-  filename: string,
+  filename: string
 ) => {
   module.exports = filename;
 };
