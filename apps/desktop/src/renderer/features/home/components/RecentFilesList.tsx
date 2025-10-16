@@ -20,7 +20,7 @@ export function RecentFilesList({ files, onOpen }: Readonly<RecentFilesListProps
         <li key={file}>
           <Button
             variant="ghost"
-            className="px-0 text-left hover:underline"
+            className="text-left hover:underline"
             onClick={() => onOpen(file)}
           >
             {file}

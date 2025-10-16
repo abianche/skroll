@@ -35,12 +35,12 @@ export function PreviewPanel({
         <Badge variant="destructive">Fix errors to enable preview</Badge>
       ) : null}
       {preview ? (
-        <div className="rounded-md border border-zinc-200 p-4">
+        <div className="rounded-md border text-primary p-4">
           <div className="flex flex-col gap-3">
             <ScrollArea className="h-40">
               <p>{preview.text || "(This beat has no dialogue yet.)"}</p>
             </ScrollArea>
-            <div className="space-y-2">
+            <div className="flex gap-2 space-y-2">
               {preview.ended ? (
                 <p className="text-muted-foreground">The story has ended.</p>
               ) : (

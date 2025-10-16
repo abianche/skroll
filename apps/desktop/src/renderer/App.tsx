@@ -12,7 +12,7 @@ const navLinks = [
 
 export default function App() {
   return (
-    <Container size="lg" py="xl">
+    <Container className="min-h-full" size="lg" py="md">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Skroll</h1>
         <nav className="flex gap-4">
@@ -21,7 +21,7 @@ export default function App() {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `text-sm font-medium ${isActive ? "text-zinc-900" : "text-zinc-600 hover:text-zinc-900"}`
+                `text-sm font-medium ${isActive ? "text-primary" : "text-secondary"}`
               }
             >
               {link.label}

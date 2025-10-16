@@ -10,6 +10,8 @@ if (!container) {
   throw new Error("Root container element not found");
 }
 
+document.body.classList.add("dark");
+
 const root = createRoot(container);
 root.render(
   <React.StrictMode>
