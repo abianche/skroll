@@ -30,7 +30,6 @@ export function OpenStoryDialog({
         onClose();
       }}
     >
-      <DialogTitle>Open Story</DialogTitle>
       <DialogContent>
         <h3 className="mb-2 text-lg font-semibold">Open Story</h3>
         <form
