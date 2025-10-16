@@ -22,8 +22,8 @@ export type UseHomeControllerResult = {
 export function useHomeController(): UseHomeControllerResult {
   const setFile = useScriptWorkspaceStore((state) => state.setFile);
   const [recentFiles, setRecentFiles] = useState<string[]>([]);
-  const [isOpenModalVisible, setOpenModalVisible] = useState(false);
-  const [manualPath, setManualPathState] = useState("");
+  const [isOpenModalVisible, setIsOpenModalVisible] = useState(false);
+  const [manualPath, setManualPath] = useState("");
   const [openError, setOpenError] = useState<string | null>(null);
   const [isOpening, setIsOpening] = useState(false);
 
@@ -37,7 +37,9 @@ export function useHomeController(): UseHomeControllerResult {
   }, []);
 
   useEffect(() => {
-    void refreshRecentFiles();
+    refreshRecentFiles().catch((error) => {
+      console.error("Failed to refresh recent files", error);
+    });
   }, [refreshRecentFiles]);
 
   const openExistingStory = useCallback(
@@ -60,7 +62,7 @@ export function useHomeController(): UseHomeControllerResult {
     [setFile]
   );
 
-  const submitManualPath = useCallback(async () => {
+  const submitManualPath = useCallback(async (): Promise<boolean> => {
     const trimmedPath = manualPath.trim();
     if (!trimmedPath) {
       setOpenError("File path is required.");
@@ -68,20 +70,20 @@ export function useHomeController(): UseHomeControllerResult {
     }
     const success = await openExistingStory(trimmedPath);
     if (success) {
-      setManualPathState(trimmedPath);
-      setOpenModalVisible(false);
+      setManualPath(trimmedPath);
+      setIsOpenModalVisible(false);
     }
     return success;
   }, [manualPath, openExistingStory]);
 
   const showOpenModal = useCallback(() => {
-    setManualPathState("");
+    setManualPath("");
     setOpenError(null);
-    setOpenModalVisible(true);
+    setIsOpenModalVisible(true);
   }, []);
 
   const hideOpenModal = useCallback(() => {
-    setOpenModalVisible(false);
+    setIsOpenModalVisible(false);
     setOpenError(null);
   }, []);
 
@@ -95,7 +97,7 @@ export function useHomeController(): UseHomeControllerResult {
     manualPath,
     openError,
     isOpening,
-    updateManualPath: setManualPathState,
+    updateManualPath: setManualPath,
     showOpenModal,
     hideOpenModal,
     refreshRecentFiles,
