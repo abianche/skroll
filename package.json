@@ -39,6 +39,7 @@
     "globals": "16.4.0",
     "prettier": "3.6.2",
     "rimraf": "6.0.1",
+    "shadcn": "^3.4.2",
     "tree-sitter-cli": "0.25.10",
     "typescript": "5.9.3"
   }
