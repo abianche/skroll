@@ -1,7 +1,7 @@
-import { Alert } from "../../../components/ui/alert";
-import { Badge } from "../../../components/ui/badge";
-import { Button } from "../../../components/ui/button";
-import { ScrollArea } from "../../../components/ui/scroll-area";
+import { Alert } from "@components/ui/alert";
+import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
+import { ScrollArea } from "@components/ui/scroll-area";
 import type { PreviewState } from "../ScriptEditorView";
 
 export type PreviewPanelProps = {

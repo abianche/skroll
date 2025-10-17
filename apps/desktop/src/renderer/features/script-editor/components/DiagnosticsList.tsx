@@ -1,4 +1,4 @@
-import { Badge } from "../../../components/ui/badge";
+import { Badge } from "@components/ui/badge";
 import type { Diagnostic } from "@skroll/ipc-contracts";
 
 function formatLocation(diagnostic: Diagnostic): string {

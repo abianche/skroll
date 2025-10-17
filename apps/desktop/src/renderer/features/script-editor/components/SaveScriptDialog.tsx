@@ -1,7 +1,7 @@
-import { Button } from "../../../components/ui/button";
-import { Dialog, DialogContent } from "../../../components/ui/dialog";
-import { Textarea } from "../../../components/ui/textarea";
-import { Alert } from "../../../components/ui/alert";
+import { Button } from "@components/ui/button";
+import { Dialog, DialogContent } from "@components/ui/dialog";
+import { Textarea } from "@components/ui/textarea";
+import { Alert } from "@components/ui/alert";
 
 export type SaveScriptDialogProps = {
   open: boolean;
