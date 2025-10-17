@@ -1,4 +1,4 @@
-import { Button } from "../../components/ui/button";
+import { Button } from "@components/ui/button";
 import { OpenStoryDialog } from "./components/OpenStoryDialog";
 import { RecentFilesList } from "./components/RecentFilesList";
 

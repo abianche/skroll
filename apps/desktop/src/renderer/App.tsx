@@ -1,6 +1,6 @@
 import { NavLink, Route, Routes } from "react-router";
-import { Container } from "./components/ui/container";
-import { Separator } from "./components/ui/separator";
+import { Container } from "@components/ui/container";
+import { Separator } from "@components/ui/separator";
 
 import { EditorPage } from "./pages/Editor";
 import { HomePage } from "./pages/Home";

@@ -5,6 +5,7 @@ import { plugins } from "./webpack.plugins";
 import { rules } from "./webpack.rules";
 
 const alias = {
+  "@components": path.resolve(__dirname, "src", "renderer", "components"),
   "@skroll/ipc-contracts": path.resolve(__dirname, "src", "shared", "ipc-contracts"),
   "@skroll/storage": path.resolve(__dirname, "src", "shared", "storage"),
   "@skroll/engine-skroll": path.resolve(__dirname, "src", "shared", "engine-skroll"),
