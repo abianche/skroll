@@ -1,7 +1,4 @@
 # Ignore generated code
 
 # Linguist settings
-*.generated.php linguist-generated
-*.generated.js linguist-generated
-*.generated.css linguist-generated
-*.generated.html linguist-generated
+*.c linguist-generated=true
