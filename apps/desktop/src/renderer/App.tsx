@@ -1,7 +1,7 @@
 import { NavLink, Route, Routes } from "react-router";
-import { Container } from "./components/ui/container";
-import { Separator } from "./components/ui/separator";
-import { ModeToggle } from "./components/mode-toggle";
+import { Container } from "@components/ui/container";
+import { Separator } from "@components/ui/separator";
+import { ModeToggle } from "@components/mode-toggle";
 
 import { EditorPage } from "./pages/Editor";
 import { HomePage } from "./pages/Home";

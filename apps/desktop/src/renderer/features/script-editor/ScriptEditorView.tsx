@@ -1,7 +1,7 @@
-import { Alert } from "../../components/ui/alert";
-import { Badge } from "../../components/ui/badge";
-import { Button } from "../../components/ui/button";
-import { Textarea } from "../../components/ui/textarea";
+import { Alert } from "@components/ui/alert";
+import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
+import { Textarea } from "@components/ui/textarea";
 
 import type { Diagnostic } from "@skroll/ipc-contracts";
 import type { SessionChoice } from "@skroll/engine-skroll";

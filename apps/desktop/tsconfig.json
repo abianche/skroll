@@ -12,6 +12,7 @@
     "paths": {
       "src/*": ["src/*"],
       "src/lib/*": ["src/renderer/lib/*"],
+      "@components/*": ["src/renderer/components/*"],
       "@skroll/ipc-contracts": ["src/shared/ipc-contracts"],
       "@skroll/engine-skroll": ["src/shared/engine-skroll"],
       "@skroll/storage": ["src/shared/storage"],
